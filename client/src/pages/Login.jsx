@@ -1,4 +1,12 @@
+import { useState } from "react"
 function Login() {
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+
+  function handleLogin() {
+    console.log("Email:", email)
+    console.log("Password:", password)
+  }
   return (
     <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
 
@@ -24,6 +32,8 @@ function Login() {
             <input
               type="email"
               placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg mt-1 outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-600 text-sm"
             />
           </div>
@@ -36,11 +46,16 @@ function Login() {
             <input
               type="password"
               placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg mt-1 outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-600 text-sm"
             />
           </div>
 
-          <button className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-lg mt-2 transition duration-200 text-sm tracking-wide">
+          <button
+            onClick={handleLogin}
+            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-lg mt-2 transition duration-200 text-sm tracking-wide"
+          >
             Sign in →
           </button>
 
