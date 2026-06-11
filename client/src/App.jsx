@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard"
 import AddJob from "./pages/AddJob"
 import JDAnalyzer from "./pages/JDAnalyzer"
 import ResumeScorer from "./pages/ResumeScorer"
+import InterviewPrep from "./pages/InterviewPrep"
 
 function App() {
   const [session, setSession] = useState(null)
@@ -32,6 +33,7 @@ function App() {
         <Route path="/add-job" element={session ? <AddJob /> : <Navigate to="/" />} />
         <Route path="/jd-analyzer" element={session ? <JDAnalyzer /> : <Navigate to="/" />} />
         <Route path="/resume-scorer" element={session ? <ResumeScorer /> : <Navigate to="/" />} />
+        <Route path="/interview-prep" element={session ? <InterviewPrep /> : <Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
   )

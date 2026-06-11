@@ -103,6 +103,12 @@ function Dashboard() {
           >
             📄 Resume Scorer
           </button>
+          <button
+            onClick={() => navigate("/interview-prep")}
+            style={{ backgroundColor: "#d97706", color: "white", padding: "10px 20px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "600", fontSize: "14px" }}
+          >
+            🎯 Interview Prep
+          </button>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px", marginBottom: "32px" }}>
