@@ -4,6 +4,7 @@ import { supabase } from "./supabaseClient"
 import Login from "./pages/Login"
 import Dashboard from "./pages/Dashboard"
 import AddJob from "./pages/AddJob"
+import JDAnalyzer from "./pages/JDAnalyzer"
 
 function App() {
   const [session, setSession] = useState(null)
@@ -28,6 +29,7 @@ function App() {
         <Route path="/" element={!session ? <Login /> : <Navigate to="/dashboard" />} />
         <Route path="/dashboard" element={session ? <Dashboard /> : <Navigate to="/" />} />
         <Route path="/add-job" element={session ? <AddJob /> : <Navigate to="/" />} />
+        <Route path="/jd-analyzer" element={session ? <JDAnalyzer /> : <Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
   )
