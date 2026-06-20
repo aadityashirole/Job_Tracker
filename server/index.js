@@ -3,6 +3,7 @@ const mongoose = require("mongoose")
 const cors = require("cors")
 const dotenv = require("dotenv")
 const authRoutes = require("./routes/authRoutes")
+const jobRoutes = require("./routes/jobRoutes")
 
 dotenv.config()
 
@@ -16,6 +17,7 @@ mongoose.connect(process.env.MONGO_URI)
   .catch((err) => console.log("MongoDB connection error:", err))
 
 app.use("/api/auth", authRoutes)
+app.use("/api/jobs", jobRoutes)
 
 app.get("/", (req, res) => {
   res.send("Job Tracker API is running")
