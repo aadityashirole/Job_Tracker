@@ -1,6 +1,6 @@
 import { useState } from "react"
-import { supabase } from "../supabaseClient"
 import { useNavigate } from "react-router-dom"
+import { addJob } from "../api"
 
 function AddJob() {
   const navigate = useNavigate()
@@ -27,15 +27,12 @@ function AddJob() {
     setLoading(true)
     setError("")
 
-    const { data: { user } } = await supabase.auth.getUser()
-
-    const { error } = await supabase
-      .from("application")
-      .insert([{ ...form, user_id: user.id }])
+    const token = localStorage.getItem("token")
+    const data = await addJob(token, form)
 
     setLoading(false)
-    if (error) {
-      setError(error.message)
+    if (data.message && !data._id) {
+      setError(data.message)
     } else {
       navigate("/dashboard")
     }
@@ -44,7 +41,6 @@ function AddJob() {
   return (
     <div style={{minHeight: "100vh", backgroundColor: "#030712", color: "white"}}>
 
-      {/* Navbar */}
       <nav style={{backgroundColor: "#111827", borderBottom: "1px solid #1f2937", padding: "16px 32px", display: "flex", justifyContent: "space-between", alignItems: "center"}}>
         <div style={{display: "flex", alignItems: "center", gap: "10px"}}>
           <div style={{backgroundColor: "#2563eb", width: "32px", height: "32px", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", fontSize: "12px"}}>
@@ -60,7 +56,6 @@ function AddJob() {
         </button>
       </nav>
 
-      {/* Form */}
       <div style={{maxWidth: "600px", margin: "40px auto", padding: "0 16px"}}>
         <h1 style={{fontSize: "24px", fontWeight: "bold", marginBottom: "8px"}}>Add New Application</h1>
         <p style={{color: "#6b7280", fontSize: "14px", marginBottom: "32px"}}>Track a new job you've applied to</p>

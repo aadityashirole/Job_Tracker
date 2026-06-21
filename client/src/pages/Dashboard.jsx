@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
-import { supabase } from "../supabaseClient"
 import { useNavigate } from "react-router-dom"
+import { getJobs, updateJobStatus, deleteJob } from "../api"
 import KanbanBoard from "../components/KanbanBoard"
 
 function Dashboard() {
@@ -10,46 +10,35 @@ function Dashboard() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user)
-      if (user) fetchJobs(user.id)
-    })
+    const storedUser = JSON.parse(localStorage.getItem("user"))
+    const token = localStorage.getItem("token")
+    setUser(storedUser)
+    if (token) fetchJobs(token)
   }, [])
 
-  async function fetchJobs(userId) {
-    const { data, error } = await supabase
-      .from("application")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-    if (!error) setJobs(data)
+  async function fetchJobs(token) {
+    const data = await getJobs(token)
+    if (Array.isArray(data)) setJobs(data)
   }
 
-  async function updateStatus(jobId, newStatus) {
-    const { error } = await supabase
-      .from("application")
-      .update({ status: newStatus })
-      .eq("id", jobId)
-    if (!error) {
-      setJobs(jobs.map(job =>
-        job.id === jobId ? { ...job, status: newStatus } : job
-      ))
-    }
+  async function handleStatusUpdate(jobId, newStatus) {
+    const token = localStorage.getItem("token")
+    await updateJobStatus(token, jobId, newStatus)
+    setJobs(jobs.map(job =>
+      job._id === jobId ? { ...job, status: newStatus } : job
+    ))
   }
 
-  async function deleteJob(jobId) {
-    const { error } = await supabase
-      .from("application")
-      .delete()
-      .eq("id", jobId)
-    if (!error) {
-      setJobs(jobs.filter(job => job.id !== jobId))
-    }
+  async function handleDeleteJob(jobId) {
+    const token = localStorage.getItem("token")
+    await deleteJob(token, jobId)
+    setJobs(jobs.filter(job => job._id !== jobId))
   }
 
-  async function handleLogout() {
-    await supabase.auth.signOut()
-    navigate("/")
+  function handleLogout() {
+    localStorage.removeItem("token")
+    localStorage.removeItem("user")
+    window.location.href = "/"
   }
 
   const totalJobs = jobs.length
@@ -80,35 +69,37 @@ function Dashboard() {
 
       <div style={{ padding: "32px" }}>
 
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", flexWrap: "wrap", gap: "12px" }}>
           <div>
             <h1 style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "4px" }}>Dashboard</h1>
             <p style={{ color: "#6b7280", fontSize: "14px" }}>Track all your job applications</p>
           </div>
-          <button
-            onClick={() => navigate("/add-job")}
-            style={{ backgroundColor: "#2563eb", color: "white", padding: "10px 20px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "600", fontSize: "14px" }}
-          >
-            + Add Job
-          </button>
-          <button
-            onClick={() => navigate("/jd-analyzer")}
-            style={{ backgroundColor: "#7c3aed", color: "white", padding: "10px 20px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "600", fontSize: "14px" }}
-          >
-            🤖 AI Gap Analyzer
-          </button>
-          <button
-            onClick={() => navigate("/resume-scorer")}
-            style={{ backgroundColor: "#059669", color: "white", padding: "10px 20px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "600", fontSize: "14px" }}
-          >
-            📄 Resume Scorer
-          </button>
-          <button
-            onClick={() => navigate("/interview-prep")}
-            style={{ backgroundColor: "#d97706", color: "white", padding: "10px 20px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "600", fontSize: "14px" }}
-          >
-            🎯 Interview Prep
-          </button>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            <button
+              onClick={() => navigate("/add-job")}
+              style={{ backgroundColor: "#2563eb", color: "white", padding: "10px 20px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "600", fontSize: "14px" }}
+            >
+              + Add Job
+            </button>
+            <button
+              onClick={() => navigate("/jd-analyzer")}
+              style={{ backgroundColor: "#7c3aed", color: "white", padding: "10px 20px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "600", fontSize: "14px" }}
+            >
+              🤖 AI Gap Analyzer
+            </button>
+            <button
+              onClick={() => navigate("/resume-scorer")}
+              style={{ backgroundColor: "#059669", color: "white", padding: "10px 20px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "600", fontSize: "14px" }}
+            >
+              📄 Resume Scorer
+            </button>
+            <button
+              onClick={() => navigate("/interview-prep")}
+              style={{ backgroundColor: "#d97706", color: "white", padding: "10px 20px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "600", fontSize: "14px" }}
+            >
+              🎯 Interview Prep
+            </button>
+          </div>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px", marginBottom: "32px" }}>
@@ -157,7 +148,7 @@ function Dashboard() {
             </div>
           ) : view === "list" ? (
             jobs.map(job => (
-              <div key={job.id} style={{ padding: "20px", border: "1px solid #1f2937", borderRadius: "12px", marginBottom: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: "#0f172a" }}>
+              <div key={job._id} style={{ padding: "20px", border: "1px solid #1f2937", borderRadius: "12px", marginBottom: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: "#0f172a", flexWrap: "wrap", gap: "12px" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                     <h3 style={{ fontSize: "16px", fontWeight: "600", margin: 0 }}>{job.company_name}</h3>
@@ -170,12 +161,11 @@ function Dashboard() {
                     </span>
                   </div>
                   <p style={{ color: "#6b7280", fontSize: "14px", margin: 0 }}>{job.role_title}</p>
-                  <p style={{ color: "#4b5563", fontSize: "12px", margin: 0 }}>{job.applied_date ? `Applied: ${job.applied_date}` : ""}</p>
                 </div>
                 <div style={{ display: "flex", gap: "8px" }}>
                   <select
                     value={job.status}
-                    onChange={(e) => updateStatus(job.id, e.target.value)}
+                    onChange={(e) => handleStatusUpdate(job._id, e.target.value)}
                     style={{ backgroundColor: "#1f2937", border: "1px solid #374151", color: "white", padding: "6px 10px", borderRadius: "6px", fontSize: "12px", cursor: "pointer" }}
                   >
                     <option value="applied">Applied</option>
@@ -185,7 +175,7 @@ function Dashboard() {
                     <option value="rejected">Rejected</option>
                   </select>
                   <button
-                    onClick={() => deleteJob(job.id)}
+                    onClick={() => handleDeleteJob(job._id)}
                     style={{ backgroundColor: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#ef4444", padding: "6px 12px", borderRadius: "6px", cursor: "pointer", fontSize: "12px" }}
                   >
                     Delete
@@ -194,7 +184,7 @@ function Dashboard() {
               </div>
             ))
           ) : (
-            <KanbanBoard jobs={jobs} onStatusUpdate={updateStatus} />
+            <KanbanBoard jobs={jobs.map(j => ({ ...j, id: j._id }))} onStatusUpdate={handleStatusUpdate} />
           )}
 
         </div>
