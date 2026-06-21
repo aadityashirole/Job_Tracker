@@ -17,45 +17,13 @@ function ResumeScorer() {
     setError("")
     setResult(null)
 
-    const prompt = `
-You are an expert resume reviewer with 10 years of experience in tech hiring.
-Analyze this resume and provide detailed feedback.
-
-Resume:
-${resume}
-
-Respond in this exact JSON format only, no extra text, no markdown:
-{
-  "overall_score": 72,
-  "sections": {
-    "content": 75,
-    "structure": 80,
-    "impact": 65,
-    "keywords": 70
-  },
-  "strengths": ["strength1", "strength2", "strength3"],
-  "improvements": ["improvement1", "improvement2", "improvement3"],
-  "summary": "2-3 sentence overall assessment"
-}
-`
-
     try {
-      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      const response = await fetch("http://localhost:5000/api/ai/resume-scorer", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: "llama-3.1-8b-instant",
-          messages: [{ role: "user", content: prompt }],
-          temperature: 0.3
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resume })
       })
-      const data = await response.json()
-      const text = data.choices[0].message.content
-      const cleaned = text.replace(/```json|```/g, "").trim()
-      const parsed = JSON.parse(cleaned)
+      const parsed = await response.json()
       setResult(parsed)
     } catch (err) {
       console.error(err)
@@ -115,7 +83,6 @@ Respond in this exact JSON format only, no extra text, no markdown:
         {result && (
           <div style={{display: "flex", flexDirection: "column", gap: "20px"}}>
 
-            {/* Overall Score */}
             <div style={{backgroundColor: "#111827", border: "1px solid #1f2937", borderRadius: "12px", padding: "24px", textAlign: "center"}}>
               <p style={{color: "#6b7280", fontSize: "14px", marginBottom: "8px"}}>Overall Score</p>
               <p style={{fontSize: "64px", fontWeight: "bold", color: result.overall_score >= 70 ? "#22c55e" : result.overall_score >= 50 ? "#f59e0b" : "#ef4444"}}>
@@ -124,7 +91,6 @@ Respond in this exact JSON format only, no extra text, no markdown:
               <p style={{color: "#6b7280", fontSize: "14px"}}>out of 100</p>
             </div>
 
-            {/* Section Scores */}
             <div style={{backgroundColor: "#111827", border: "1px solid #1f2937", borderRadius: "12px", padding: "24px"}}>
               <h3 style={{fontSize: "16px", fontWeight: "600", marginBottom: "16px"}}>Section Breakdown</h3>
               {Object.entries(result.sections).map(([key, value]) => (
@@ -142,7 +108,6 @@ Respond in this exact JSON format only, no extra text, no markdown:
 
             <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px"}}>
 
-              {/* Strengths */}
               <div style={{backgroundColor: "#111827", border: "1px solid #1f2937", borderRadius: "12px", padding: "24px"}}>
                 <h3 style={{color: "#22c55e", fontSize: "16px", fontWeight: "600", marginBottom: "16px"}}>✅ Strengths</h3>
                 {result.strengths.map((s, i) => (
@@ -152,7 +117,6 @@ Respond in this exact JSON format only, no extra text, no markdown:
                 ))}
               </div>
 
-              {/* Improvements */}
               <div style={{backgroundColor: "#111827", border: "1px solid #1f2937", borderRadius: "12px", padding: "24px"}}>
                 <h3 style={{color: "#ef4444", fontSize: "16px", fontWeight: "600", marginBottom: "16px"}}>⚠️ Improvements</h3>
                 {result.improvements.map((imp, i) => (
@@ -164,7 +128,6 @@ Respond in this exact JSON format only, no extra text, no markdown:
 
             </div>
 
-            {/* Summary */}
             <div style={{backgroundColor: "#111827", border: "1px solid #1f2937", borderRadius: "12px", padding: "24px"}}>
               <h3 style={{color: "#3b82f6", fontSize: "16px", fontWeight: "600", marginBottom: "12px"}}>💡 AI Summary</h3>
               <p style={{color: "#9ca3af", fontSize: "14px", lineHeight: "1.6"}}>{result.summary}</p>

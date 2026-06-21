@@ -18,41 +18,13 @@ function JDAnalyzer() {
         setError("")
         setResult(null)
 
-        const prompt = `
-You are a career advisor. Analyze the gap between a candidate's skills and a job description.
-
-Candidate's current skills:
-${skills}
-
-Job Description:
-${jd}
-
-Respond in this exact JSON format only, no extra text, no markdown:
-{
-  "matched_skills": ["skill1", "skill2"],
-  "missing_skills": ["skill1", "skill2"],
-  "recommendation": "2-3 sentence advice on what to learn first and why",
-  "match_percentage": 65
-}
-`
-
         try {
-            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            const response = await fetch("http://localhost:5000/api/ai/jd-analyzer", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`
-                },
-                body: JSON.stringify({
-                    model: "llama-3.1-8b-instant",
-                    messages: [{ role: "user", content: prompt }],
-                    temperature: 0.3
-                })
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ skills, jd })
             })
-            const data = await response.json()
-            const text = data.choices[0].message.content
-            const cleaned = text.replace(/```json|```/g, "").trim()
-            const parsed = JSON.parse(cleaned)
+            const parsed = await response.json()
             setResult(parsed)
         } catch (err) {
             console.error(err)
@@ -65,7 +37,6 @@ Respond in this exact JSON format only, no extra text, no markdown:
     return (
         <div style={{ minHeight: "100vh", backgroundColor: "#030712", color: "white" }}>
 
-            {/* Navbar */}
             <nav style={{ backgroundColor: "#111827", borderBottom: "1px solid #1f2937", padding: "16px 32px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                     <div style={{ backgroundColor: "#2563eb", width: "32px", height: "32px", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", fontSize: "12px" }}>
@@ -122,11 +93,9 @@ Respond in this exact JSON format only, no extra text, no markdown:
                     {loading ? "Analyzing..." : "Analyze Gap →"}
                 </button>
 
-                {/* Results */}
                 {result && (
                     <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
 
-                        {/* Match Score */}
                         <div style={{ backgroundColor: "#111827", border: "1px solid #1f2937", borderRadius: "12px", padding: "24px", textAlign: "center" }}>
                             <p style={{ color: "#6b7280", fontSize: "14px", marginBottom: "8px" }}>Match Score</p>
                             <p style={{ fontSize: "48px", fontWeight: "bold", color: result.match_percentage >= 70 ? "#22c55e" : result.match_percentage >= 40 ? "#f59e0b" : "#ef4444" }}>
@@ -136,7 +105,6 @@ Respond in this exact JSON format only, no extra text, no markdown:
 
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
 
-                            {/* Matched Skills */}
                             <div style={{ backgroundColor: "#111827", border: "1px solid #1f2937", borderRadius: "12px", padding: "24px" }}>
                                 <h3 style={{ color: "#22c55e", fontSize: "16px", fontWeight: "600", marginBottom: "16px" }}>✅ Skills You Have</h3>
                                 <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
@@ -148,7 +116,6 @@ Respond in this exact JSON format only, no extra text, no markdown:
                                 </div>
                             </div>
 
-                            {/* Missing Skills */}
                             <div style={{ backgroundColor: "#111827", border: "1px solid #1f2937", borderRadius: "12px", padding: "24px" }}>
                                 <h3 style={{ color: "#ef4444", fontSize: "16px", fontWeight: "600", marginBottom: "16px" }}>❌ Skills You Need</h3>
                                 <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
@@ -162,7 +129,6 @@ Respond in this exact JSON format only, no extra text, no markdown:
 
                         </div>
 
-                        {/* Recommendation */}
                         <div style={{ backgroundColor: "#111827", border: "1px solid #1f2937", borderRadius: "12px", padding: "24px" }}>
                             <h3 style={{ color: "#3b82f6", fontSize: "16px", fontWeight: "600", marginBottom: "12px" }}>💡 AI Recommendation</h3>
                             <p style={{ color: "#9ca3af", fontSize: "14px", lineHeight: "1.6" }}>{result.recommendation}</p>

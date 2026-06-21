@@ -18,51 +18,13 @@ function InterviewPrep() {
     setError("")
     setResult(null)
 
-    const prompt = `
-You are an expert technical interviewer at a top tech company.
-Generate interview questions for the following role.
-
-Role: ${role}
-${jd ? `Job Description: ${jd}` : ""}
-
-Respond in this exact JSON format only, no extra text, no markdown:
-{
-  "technical": [
-    {"question": "question text", "tip": "what interviewer looks for"},
-    {"question": "question text", "tip": "what interviewer looks for"},
-    {"question": "question text", "tip": "what interviewer looks for"},
-    {"question": "question text", "tip": "what interviewer looks for"},
-    {"question": "question text", "tip": "what interviewer looks for"}
-  ],
-  "behavioral": [
-    {"question": "question text", "tip": "what interviewer looks for"},
-    {"question": "question text", "tip": "what interviewer looks for"},
-    {"question": "question text", "tip": "what interviewer looks for"}
-  ],
-  "hr": [
-    {"question": "question text", "tip": "what interviewer looks for"},
-    {"question": "question text", "tip": "what interviewer looks for"}
-  ]
-}
-`
-
     try {
-      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      const response = await fetch("http://localhost:5000/api/ai/interview-prep", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: "llama-3.1-8b-instant",
-          messages: [{ role: "user", content: prompt }],
-          temperature: 0.5
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role, jd })
       })
-      const data = await response.json()
-      const text = data.choices[0].message.content
-      const cleaned = text.replace(/```json|```/g, "").trim()
-      const parsed = JSON.parse(cleaned)
+      const parsed = await response.json()
       setResult(parsed)
     } catch (err) {
       console.error(err)
@@ -133,7 +95,6 @@ Respond in this exact JSON format only, no extra text, no markdown:
         {result && (
           <div style={{display: "flex", flexDirection: "column", gap: "24px"}}>
 
-            {/* Technical Questions */}
             <div style={{backgroundColor: "#111827", border: "1px solid #1f2937", borderRadius: "12px", padding: "24px"}}>
               <h3 style={{color: "#3b82f6", fontSize: "18px", fontWeight: "600", marginBottom: "20px"}}>💻 Technical Questions</h3>
               {result.technical.map((q, i) => (
@@ -144,7 +105,6 @@ Respond in this exact JSON format only, no extra text, no markdown:
               ))}
             </div>
 
-            {/* Behavioral Questions */}
             <div style={{backgroundColor: "#111827", border: "1px solid #1f2937", borderRadius: "12px", padding: "24px"}}>
               <h3 style={{color: "#22c55e", fontSize: "18px", fontWeight: "600", marginBottom: "20px"}}>🤝 Behavioral Questions</h3>
               {result.behavioral.map((q, i) => (
@@ -155,7 +115,6 @@ Respond in this exact JSON format only, no extra text, no markdown:
               ))}
             </div>
 
-            {/* HR Questions */}
             <div style={{backgroundColor: "#111827", border: "1px solid #1f2937", borderRadius: "12px", padding: "24px"}}>
               <h3 style={{color: "#f59e0b", fontSize: "18px", fontWeight: "600", marginBottom: "20px"}}>👔 HR Questions</h3>
               {result.hr.map((q, i) => (
