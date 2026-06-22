@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { useState, useEffect } from "react"
+import Landing from "./pages/Landing"
 import Login from "./pages/Login"
 import Dashboard from "./pages/Dashboard"
 import AddJob from "./pages/AddJob"
@@ -22,12 +23,13 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={!token ? <Login /> : <Navigate to="/dashboard" />} />
-        <Route path="/dashboard" element={token ? <Dashboard /> : <Navigate to="/" />} />
-        <Route path="/add-job" element={token ? <AddJob /> : <Navigate to="/" />} />
-        <Route path="/jd-analyzer" element={token ? <JDAnalyzer /> : <Navigate to="/" />} />
-        <Route path="/resume-scorer" element={token ? <ResumeScorer /> : <Navigate to="/" />} />
-        <Route path="/interview-prep" element={token ? <InterviewPrep /> : <Navigate to="/" />} />
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={!token ? <Login /> : <Navigate to="/dashboard" />} />
+        <Route path="/dashboard" element={token ? <Dashboard /> : <Navigate to="/login" />} />
+        <Route path="/add-job" element={token ? <AddJob /> : <Navigate to="/login" />} />
+        <Route path="/jd-analyzer" element={token ? <JDAnalyzer /> : <Navigate to="/login" />} />
+        <Route path="/resume-scorer" element={token ? <ResumeScorer /> : <Navigate to="/login" />} />
+        <Route path="/interview-prep" element={token ? <InterviewPrep /> : <Navigate to="/login" />} />
       </Routes>
     </BrowserRouter>
   )
