@@ -3,95 +3,87 @@ import { useNavigate } from "react-router-dom"
 function Landing() {
   const navigate = useNavigate()
 
-  return (
-    <div style={{minHeight: "100vh", backgroundColor: "#030712", color: "white"}}>
+  const features = [
+    { title: "Application Tracking", desc: "Track every application from Applied to Offer using a clean Kanban workflow.", icon: "📋" },
+    { title: "AI Gap Analysis", desc: "Compare your skills against any job description and identify missing skills instantly.", icon: "🤖" },
+    { title: "Resume Scoring", desc: "Get detailed AI feedback and actionable improvements for your resume.", icon: "📄" },
+    { title: "Interview Preparation", desc: "Generate tailored interview questions and preparation tips.", icon: "🎯" }
+  ]
 
-      {/* Navbar */}
-      <nav style={{padding: "20px 40px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #1f2937"}}>
-        <div style={{display: "flex", alignItems: "center", gap: "10px"}}>
-          <div style={{backgroundColor: "#2563eb", width: "36px", height: "36px", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold"}}>
-            JT
+  return (
+    <div style={{ minHeight: "100vh", background: "linear-gradient(to bottom, #07111f, #0b1220, #111827)", color: "white" }}>
+      <nav style={{ padding: "22px 40px", borderBottom: "1px solid rgba(255,255,255,0.06)", position: "sticky", top: 0, zIndex: 100, backdropFilter: "blur(12px)" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{ width: "40px", height: "40px", borderRadius: "12px", background: "linear-gradient(135deg,#10b981,#3b82f6)", color: "white", display: "flex", justifyContent: "center", alignItems: "center", fontWeight: "bold" }}>
+              JT
+            </div>
+            <span style={{ fontSize: "20px", fontWeight: "700" }}>Job Tracker</span>
           </div>
-          <span style={{fontWeight: "bold", fontSize: "20px"}}>Job Tracker</span>
+          <button onClick={() => navigate("/login")} style={{ background: "linear-gradient(135deg,#10b981,#3b82f6)", color: "white", border: "none", padding: "12px 24px", borderRadius: "10px", cursor: "pointer", fontWeight: "600" }}>
+            Sign In
+          </button>
         </div>
-        <button
-          onClick={() => navigate("/login")}
-          style={{backgroundColor: "#2563eb", color: "white", padding: "10px 24px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "600", fontSize: "14px"}}
-        >
-          Sign In
-        </button>
       </nav>
 
-      {/* Hero Section */}
-      <div style={{textAlign: "center", padding: "100px 20px 80px", maxWidth: "800px", margin: "0 auto"}}>
-        <div style={{display: "inline-block", backgroundColor: "rgba(37,99,235,0.1)", border: "1px solid rgba(37,99,235,0.3)", color: "#60a5fa", padding: "6px 16px", borderRadius: "20px", fontSize: "13px", marginBottom: "24px"}}>
-          🚀 AI-Powered Job Search Assistant
+      <section style={{ padding: "120px 20px" }}>
+        <div style={{ maxWidth: "900px", margin: "0 auto", textAlign: "center" }}>
+          <div style={{ display: "inline-block", padding: "8px 16px", borderRadius: "999px", background: "rgba(16,185,129,0.12)", color: "#34d399", border: "1px solid rgba(16,185,129,0.2)", fontSize: "14px", fontWeight: "600", marginBottom: "24px" }}>
+            AI Powered Career Assistant
+          </div>
+          <h1 style={{ fontSize: "64px", fontWeight: "800", lineHeight: "1.1", marginBottom: "24px" }}>
+            Organize Your Job Search.<br />Get Hired Faster.
+          </h1>
+          <p style={{ maxWidth: "700px", margin: "0 auto", color: "#94a3b8", fontSize: "20px", lineHeight: "1.8", marginBottom: "40px" }}>
+            Track applications, analyze skill gaps, improve your resume, and prepare for interviews — all from one intelligent platform.
+          </p>
+          <div style={{ display: "flex", justifyContent: "center", gap: "16px", flexWrap: "wrap" }}>
+            <button onClick={() => navigate("/login")} style={{ background: "linear-gradient(135deg,#10b981,#3b82f6)", color: "white", border: "none", padding: "16px 32px", borderRadius: "12px", cursor: "pointer", fontWeight: "600", fontSize: "16px" }}>
+              Get Started
+            </button>
+            <button style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "white", padding: "16px 32px", borderRadius: "12px", fontWeight: "600", cursor: "pointer" }}>
+              Learn More
+            </button>
+          </div>
         </div>
-        <h1 style={{fontSize: "48px", fontWeight: "bold", marginBottom: "20px", lineHeight: "1.2"}}>
-          Track Your Job Search.<br/>Land Your Dream Role.
-        </h1>
-        <p style={{color: "#9ca3af", fontSize: "18px", marginBottom: "32px", lineHeight: "1.6"}}>
-          Organize applications, analyze skill gaps, score your resume and prepare for interviews — all powered by AI, all in one place.
-        </p>
-        <button
-          onClick={() => navigate("/login")}
-          style={{backgroundColor: "#2563eb", color: "white", padding: "14px 36px", borderRadius: "10px", border: "none", cursor: "pointer", fontWeight: "600", fontSize: "16px"}}
-        >
-          Get Started Free →
-        </button>
-      </div>
+      </section>
 
-      {/* Features Section */}
-      <div style={{maxWidth: "1100px", margin: "0 auto", padding: "40px 20px 100px"}}>
-        <h2 style={{textAlign: "center", fontSize: "32px", fontWeight: "bold", marginBottom: "12px"}}>Everything You Need</h2>
-        <p style={{textAlign: "center", color: "#6b7280", marginBottom: "60px"}}>One platform for your entire job search journey</p>
-
-        <div style={{display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px"}}>
-
-          <div style={{backgroundColor: "#111827", border: "1px solid #1f2937", borderRadius: "16px", padding: "32px"}}>
-            <div style={{fontSize: "32px", marginBottom: "16px"}}>📋</div>
-            <h3 style={{fontSize: "18px", fontWeight: "600", marginBottom: "8px"}}>Kanban Tracking</h3>
-            <p style={{color: "#9ca3af", fontSize: "14px", lineHeight: "1.6"}}>Visually track every application from applied to offer with drag and drop.</p>
+      <section style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 20px 80px" }}>
+        <div style={{ background: "rgba(17,24,39,0.75)", backdropFilter: "blur(18px)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "24px", display: "grid", gridTemplateColumns: "repeat(3,1fr)", padding: "40px" }}>
+          <div style={{ textAlign: "center" }}>
+            <h2 style={{ fontSize: "42px", color: "#34d399" }}>100%</h2>
+            <p style={{ color: "#94a3b8" }}>Free For Students</p>
           </div>
-
-          <div style={{backgroundColor: "#111827", border: "1px solid #1f2937", borderRadius: "16px", padding: "32px"}}>
-            <div style={{fontSize: "32px", marginBottom: "16px"}}>🤖</div>
-            <h3 style={{fontSize: "18px", fontWeight: "600", marginBottom: "8px"}}>AI Gap Analyzer</h3>
-            <p style={{color: "#9ca3af", fontSize: "14px", lineHeight: "1.6"}}>Paste any job description and instantly know what skills you're missing.</p>
+          <div style={{ textAlign: "center" }}>
+            <h2 style={{ fontSize: "42px", color: "#34d399" }}>4+</h2>
+            <p style={{ color: "#94a3b8" }}>AI Career Tools</p>
           </div>
-
-          <div style={{backgroundColor: "#111827", border: "1px solid #1f2937", borderRadius: "16px", padding: "32px"}}>
-            <div style={{fontSize: "32px", marginBottom: "16px"}}>📄</div>
-            <h3 style={{fontSize: "18px", fontWeight: "600", marginBottom: "8px"}}>Resume Scorer</h3>
-            <p style={{color: "#9ca3af", fontSize: "14px", lineHeight: "1.6"}}>Get an AI-generated score and actionable feedback on your resume.</p>
+          <div style={{ textAlign: "center" }}>
+            <h2 style={{ fontSize: "42px", color: "#34d399" }}>1</h2>
+            <p style={{ color: "#94a3b8" }}>Unified Dashboard</p>
           </div>
-
-          <div style={{backgroundColor: "#111827", border: "1px solid #1f2937", borderRadius: "16px", padding: "32px"}}>
-            <div style={{fontSize: "32px", marginBottom: "16px"}}>🎯</div>
-            <h3 style={{fontSize: "18px", fontWeight: "600", marginBottom: "8px"}}>Interview Prep</h3>
-            <p style={{color: "#9ca3af", fontSize: "14px", lineHeight: "1.6"}}>Generate role-specific interview questions with insider tips.</p>
-          </div>
-
-          <div style={{backgroundColor: "#111827", border: "1px solid #1f2937", borderRadius: "16px", padding: "32px"}}>
-            <div style={{fontSize: "32px", marginBottom: "16px"}}>🔒</div>
-            <h3 style={{fontSize: "18px", fontWeight: "600", marginBottom: "8px"}}>Secure & Private</h3>
-            <p style={{color: "#9ca3af", fontSize: "14px", lineHeight: "1.6"}}>Your data is encrypted and accessible only to you with JWT authentication.</p>
-          </div>
-
-          <div style={{backgroundColor: "#111827", border: "1px solid #1f2937", borderRadius: "16px", padding: "32px"}}>
-            <div style={{fontSize: "32px", marginBottom: "16px"}}>⚡</div>
-            <h3 style={{fontSize: "18px", fontWeight: "600", marginBottom: "8px"}}>Fast & Free</h3>
-            <p style={{color: "#9ca3af", fontSize: "14px", lineHeight: "1.6"}}>No subscriptions, no hidden costs. Built for students and job seekers.</p>
-          </div>
-
         </div>
-      </div>
+      </section>
 
-      {/* Footer */}
-      <div style={{borderTop: "1px solid #1f2937", padding: "32px 20px", textAlign: "center", color: "#6b7280", fontSize: "14px"}}>
-        Built by Aaditya Shirole · Job Tracker {new Date().getFullYear()}
-      </div>
+      <section style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 20px 120px" }}>
+        <div style={{ textAlign: "center", marginBottom: "60px" }}>
+          <h2 style={{ fontSize: "42px", marginBottom: "12px" }}>Everything You Need</h2>
+          <p style={{ color: "#94a3b8", fontSize: "18px" }}>Built specifically for students and job seekers.</p>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(250px,1fr))", gap: "24px" }}>
+          {features.map((feature) => (
+            <div key={feature.title} style={{ background: "rgba(17,24,39,0.75)", backdropFilter: "blur(18px)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "24px", padding: "32px" }}>
+              <div style={{ fontSize: "40px", marginBottom: "20px" }}>{feature.icon}</div>
+              <h3 style={{ marginBottom: "12px", fontSize: "20px" }}>{feature.title}</h3>
+              <p style={{ color: "#94a3b8", lineHeight: "1.7" }}>{feature.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
+      <footer style={{ borderTop: "1px solid rgba(255,255,255,0.06)", padding: "32px", textAlign: "center", color: "#64748b" }}>
+        Built by Aaditya Shirole · {new Date().getFullYear()}
+      </footer>
     </div>
   )
 }

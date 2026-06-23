@@ -4,8 +4,10 @@ import { addJob } from "../api"
 
 function AddJob() {
   const navigate = useNavigate()
+
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+
   const [form, setForm] = useState({
     company_name: "",
     role_title: "",
@@ -16,7 +18,10 @@ function AddJob() {
   })
 
   function handleChange(e) {
-    setForm({ ...form, [e.target.name]: e.target.value })
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    })
   }
 
   async function handleSubmit() {
@@ -24,6 +29,7 @@ function AddJob() {
       setError("Company name and role title are required")
       return
     }
+
     setLoading(true)
     setError("")
 
@@ -31,6 +37,7 @@ function AddJob() {
     const data = await addJob(token, form)
 
     setLoading(false)
+
     if (data.message && !data._id) {
       setError(data.message)
     } else {
@@ -39,116 +46,407 @@ function AddJob() {
   }
 
   return (
-    <div style={{minHeight: "100vh", backgroundColor: "#030712", color: "white"}}>
-
-      <nav style={{backgroundColor: "#111827", borderBottom: "1px solid #1f2937", padding: "16px 32px", display: "flex", justifyContent: "space-between", alignItems: "center"}}>
-        <div style={{display: "flex", alignItems: "center", gap: "10px"}}>
-          <div style={{backgroundColor: "#2563eb", width: "32px", height: "32px", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", fontSize: "12px"}}>
+    <div
+      style={{
+        minHeight: "100vh",
+        background:
+          "linear-gradient(to bottom, #07111f, #0b1220, #111827)",
+        color: "white"
+      }}
+    >
+      {/* NAVBAR */}
+      <nav
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "20px 40px",
+          borderBottom: "1px solid rgba(255,255,255,0.06)",
+          backdropFilter: "blur(12px)"
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "12px"
+          }}
+        >
+          <div
+            style={{
+              width: "40px",
+              height: "40px",
+              borderRadius: "12px",
+              background:
+                "linear-gradient(135deg,#10b981,#3b82f6)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontWeight: "700"
+            }}
+          >
             JT
           </div>
-          <span style={{fontWeight: "bold", fontSize: "18px"}}>Job Tracker</span>
+
+          <span
+            style={{
+              fontSize: "20px",
+              fontWeight: "700"
+            }}
+          >
+            Job Tracker
+          </span>
         </div>
+
         <button
           onClick={() => navigate("/dashboard")}
-          style={{backgroundColor: "#1f2937", border: "1px solid #374151", color: "white", padding: "8px 16px", borderRadius: "8px", cursor: "pointer", fontSize: "14px"}}
+          style={{
+            background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            color: "white",
+            padding: "10px 18px",
+            borderRadius: "12px",
+            cursor: "pointer"
+          }}
         >
-          ← Back
+          ← Dashboard
         </button>
       </nav>
 
-      <div style={{maxWidth: "600px", margin: "40px auto", padding: "0 16px"}}>
-        <h1 style={{fontSize: "24px", fontWeight: "bold", marginBottom: "8px"}}>Add New Application</h1>
-        <p style={{color: "#6b7280", fontSize: "14px", marginBottom: "32px"}}>Track a new job you've applied to</p>
+      {/* PAGE CONTENT */}
+      <div
+        style={{
+          maxWidth: "900px",
+          margin: "50px auto",
+          padding: "0 20px"
+        }}
+      >
+        {/* Heading */}
+        <div style={{ marginBottom: "32px" }}>
+          <div
+            style={{
+              display: "inline-block",
+              padding: "8px 16px",
+              borderRadius: "999px",
+              background: "rgba(16,185,129,0.12)",
+              border: "1px solid rgba(16,185,129,0.2)",
+              color: "#34d399",
+              fontSize: "13px",
+              marginBottom: "16px"
+            }}
+          >
+            New Application
+          </div>
 
+          <h1
+            style={{
+              fontSize: "42px",
+              fontWeight: "700",
+              marginBottom: "10px"
+            }}
+          >
+            Add a Job Application
+          </h1>
+
+          <p
+            style={{
+              color: "#94a3b8",
+              fontSize: "16px"
+            }}
+          >
+            Keep track of every opportunity in one place.
+          </p>
+        </div>
+
+        {/* ERROR */}
         {error && (
-          <div style={{backgroundColor: "rgba(239,68,68,0.1)", border: "1px solid #ef4444", color: "#f87171", fontSize: "14px", padding: "12px 16px", borderRadius: "8px", marginBottom: "16px"}}>
+          <div
+            style={{
+              background: "rgba(239,68,68,0.12)",
+              border: "1px solid rgba(239,68,68,0.3)",
+              color: "#f87171",
+              padding: "14px",
+              borderRadius: "14px",
+              marginBottom: "24px"
+            }}
+          >
             {error}
           </div>
         )}
 
-        <div style={{display: "flex", flexDirection: "column", gap: "20px"}}>
+        {/* FORM CARD */}
+        <div
+          style={{
+            background: "rgba(17,24,39,0.7)",
+            backdropFilter: "blur(18px)",
+            border: "1px solid rgba(255,255,255,0.06)",
+            borderRadius: "24px",
+            padding: "32px"
+          }}
+        >
+          {/* Company */}
+          <div style={{ marginBottom: "22px" }}>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "8px",
+                color: "#cbd5e1",
+                fontSize: "14px"
+              }}
+            >
+              Company Name *
+            </label>
 
-          <div>
-            <label style={{color: "#9ca3af", fontSize: "14px", display: "block", marginBottom: "6px"}}>Company Name *</label>
             <input
               name="company_name"
               value={form.company_name}
               onChange={handleChange}
-              placeholder="e.g. Google, TCS, Infosys"
-              style={{width: "100%", backgroundColor: "#1f2937", border: "1px solid #374151", color: "white", padding: "12px 16px", borderRadius: "8px", outline: "none", fontSize: "14px", boxSizing: "border-box"}}
+              placeholder="Google, Microsoft, Amazon..."
+              style={{
+                width: "100%",
+                background: "#0f172a",
+                border: "1px solid #334155",
+                color: "white",
+                padding: "14px",
+                borderRadius: "14px",
+                outline: "none",
+                fontSize: "14px",
+                boxSizing: "border-box"
+              }}
             />
+            {form.company_name && (
+              <div
+                style={{
+                  marginTop: "10px",
+                  width: "50px",
+                  height: "50px",
+                  borderRadius: "12px",
+                  background: "#00ED64",
+                  color: "#071018",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "20px",
+                  fontWeight: "700"
+                }}
+              >
+                {form.company_name.charAt(0)}
+              </div>
+            )}
           </div>
 
-          <div>
-            <label style={{color: "#9ca3af", fontSize: "14px", display: "block", marginBottom: "6px"}}>Role Title *</label>
+          {/* Role */}
+          <div style={{ marginBottom: "22px" }}>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "8px",
+                color: "#cbd5e1",
+                fontSize: "14px"
+              }}
+            >
+              Role Title *
+            </label>
+            <div style={{ marginBottom: "22px" }}>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: "8px",
+                  color: "#cbd5e1",
+                  fontSize: "14px"
+                }}
+              >
+                Job Link
+              </label>
+
+              <input
+                name="job_link"
+                value={form.job_link}
+                onChange={handleChange}
+                placeholder="https://careers.google.com/..."
+                style={{
+                  width: "100%",
+                  background: "#0f172a",
+                  border: "1px solid #334155",
+                  color: "white",
+                  padding: "14px",
+                  borderRadius: "14px",
+                  outline: "none"
+                }}
+              />
+            </div>
+
             <input
               name="role_title"
               value={form.role_title}
               onChange={handleChange}
-              placeholder="e.g. Software Engineer, Frontend Developer"
-              style={{width: "100%", backgroundColor: "#1f2937", border: "1px solid #374151", color: "white", padding: "12px 16px", borderRadius: "8px", outline: "none", fontSize: "14px", boxSizing: "border-box"}}
+              placeholder="Frontend Developer"
+              style={{
+                width: "100%",
+                background: "#0f172a",
+                border: "1px solid #334155",
+                color: "white",
+                padding: "14px",
+                borderRadius: "14px",
+                outline: "none",
+                fontSize: "14px",
+                boxSizing: "border-box"
+              }}
             />
           </div>
 
-          <div>
-            <label style={{color: "#9ca3af", fontSize: "14px", display: "block", marginBottom: "6px"}}>Status</label>
-            <select
-              name="status"
-              value={form.status}
-              onChange={handleChange}
-              style={{width: "100%", backgroundColor: "#1f2937", border: "1px solid #374151", color: "white", padding: "12px 16px", borderRadius: "8px", outline: "none", fontSize: "14px", boxSizing: "border-box"}}
+          {/* STATUS + DATE */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "20px",
+              marginBottom: "22px"
+            }}
+          >
+            <div>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: "8px",
+                  color: "#cbd5e1",
+                  fontSize: "14px"
+                }}
+              >
+                Status
+              </label>
+
+              <select
+                name="status"
+                value={form.status}
+                onChange={handleChange}
+                style={{
+                  width: "100%",
+                  background: "#0f172a",
+                  border: "1px solid #334155",
+                  color: "white",
+                  padding: "14px",
+                  borderRadius: "14px",
+                  outline: "none"
+                }}
+              >
+                <option value="applied">Applied</option>
+                <option value="shortlisted">Shortlisted</option>
+                <option value="interview">Interview</option>
+                <option value="offer">Offer</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+
+            <div>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: "8px",
+                  color: "#cbd5e1",
+                  fontSize: "14px"
+                }}
+              >
+                Applied Date
+              </label>
+
+              <input
+                type="date"
+                name="applied_date"
+                value={form.applied_date}
+                onChange={handleChange}
+                style={{
+                  width: "100%",
+                  background: "#0f172a",
+                  border: "1px solid #334155",
+                  color: "white",
+                  padding: "14px",
+                  borderRadius: "14px",
+                  outline: "none"
+                }}
+              />
+            </div>
+          </div>
+
+          {/* JD */}
+          <div style={{ marginBottom: "22px" }}>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "8px",
+                color: "#cbd5e1",
+                fontSize: "14px"
+              }}
             >
-              <option value="applied">Applied</option>
-              <option value="shortlisted">Shortlisted</option>
-              <option value="interview">Interview</option>
-              <option value="offer">Offer</option>
-              <option value="rejected">Rejected</option>
-            </select>
-          </div>
+              Job Description
+            </label>
 
-          <div>
-            <label style={{color: "#9ca3af", fontSize: "14px", display: "block", marginBottom: "6px"}}>Date Applied</label>
-            <input
-              type="date"
-              name="applied_date"
-              value={form.applied_date}
-              onChange={handleChange}
-              style={{width: "100%", backgroundColor: "#1f2937", border: "1px solid #374151", color: "white", padding: "12px 16px", borderRadius: "8px", outline: "none", fontSize: "14px", boxSizing: "border-box"}}
-            />
-          </div>
-
-          <div>
-            <label style={{color: "#9ca3af", fontSize: "14px", display: "block", marginBottom: "6px"}}>Job Description</label>
             <textarea
               name="job_description"
               value={form.job_description}
               onChange={handleChange}
-              placeholder="Paste the job description here..."
-              rows={5}
-              style={{width: "100%", backgroundColor: "#1f2937", border: "1px solid #374151", color: "white", padding: "12px 16px", borderRadius: "8px", outline: "none", fontSize: "14px", boxSizing: "border-box", resize: "vertical"}}
+              rows={6}
+              placeholder="Paste the complete job description..."
+              style={{
+                width: "100%",
+                background: "#0f172a",
+                border: "1px solid #334155",
+                color: "white",
+                padding: "14px",
+                borderRadius: "14px",
+                resize: "vertical",
+                outline: "none",
+                boxSizing: "border-box"
+              }}
             />
           </div>
 
-          <div>
-            <label style={{color: "#9ca3af", fontSize: "14px", display: "block", marginBottom: "6px"}}>Notes</label>
+          {/* NOTES */}
+          <div style={{ marginBottom: "30px" }}>
+            <label>
+              Notes ({form.notes.length}/500)
+            </label>
+
             <textarea
+              maxLength={500}
               name="notes"
               value={form.notes}
               onChange={handleChange}
-              placeholder="Any additional notes..."
-              rows={3}
-              style={{width: "100%", backgroundColor: "#1f2937", border: "1px solid #374151", color: "white", padding: "12px 16px", borderRadius: "8px", outline: "none", fontSize: "14px", boxSizing: "border-box", resize: "vertical"}}
+              rows={4}
+              placeholder="Interview rounds, referral details, salary expectations..."
+              style={{
+                width: "100%",
+                background: "#0f172a",
+                border: "1px solid #334155",
+                color: "white",
+                padding: "14px",
+                borderRadius: "14px",
+                resize: "vertical",
+                outline: "none",
+                boxSizing: "border-box"
+              }}
             />
           </div>
 
+          {/* BUTTON */}
           <button
             onClick={handleSubmit}
             disabled={loading}
-            style={{backgroundColor: "#2563eb", color: "white", padding: "14px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "600", fontSize: "16px", opacity: loading ? 0.5 : 1}}
+            style={{
+              width: "100%",
+              background:
+                "linear-gradient(135deg,#10b981,#3b82f6)",
+              color: "white",
+              border: "none",
+              padding: "16px",
+              borderRadius: "14px",
+              fontWeight: "600",
+              cursor: "pointer",
+              fontSize: "15px"
+            }}
           >
-            {loading ? "Saving..." : "Save Application"}
+            {loading ? "Saving Application..." : "Save Application"}
           </button>
-
         </div>
       </div>
     </div>

@@ -10,10 +10,15 @@ function InterviewPrep() {
   const [error, setError] = useState("")
 
   async function generateQuestions() {
-    if (!role) {
+    if (!role.trim()) {
       setError("Please enter a role title")
       return
     }
+    if (role.trim().length < 3) {
+      setError("Please enter a valid role title")
+      return
+    }
+
     setLoading(true)
     setError("")
     setResult(null)
@@ -35,92 +40,94 @@ function InterviewPrep() {
   }
 
   return (
-    <div style={{minHeight: "100vh", backgroundColor: "#030712", color: "white"}}>
-
-      <nav style={{backgroundColor: "#111827", borderBottom: "1px solid #1f2937", padding: "16px 32px", display: "flex", justifyContent: "space-between", alignItems: "center"}}>
-        <div style={{display: "flex", alignItems: "center", gap: "10px"}}>
-          <div style={{backgroundColor: "#2563eb", width: "32px", height: "32px", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", fontSize: "12px"}}>
+    <div style={{ minHeight: "100vh", background: "linear-gradient(to bottom, #07111f, #0b1220, #111827)", color: "white" }}>
+      <nav style={{ padding: "20px 40px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.06)", position: "sticky", top: 0, zIndex: 100 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div style={{ width: "40px", height: "40px", borderRadius: "12px", background: "linear-gradient(135deg,#10b981,#3b82f6)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "700" }}>
             JT
           </div>
-          <span style={{fontWeight: "bold", fontSize: "18px"}}>Job Tracker</span>
+          <div>
+            <div style={{ fontWeight: "700", fontSize: "18px" }}>Job Tracker</div>
+            <div style={{ fontSize: "12px", color: "#94a3b8" }}>AI Interview Assistant</div>
+          </div>
         </div>
-        <button
-          onClick={() => navigate("/dashboard")}
-          style={{backgroundColor: "#1f2937", border: "1px solid #374151", color: "white", padding: "8px 16px", borderRadius: "8px", cursor: "pointer", fontSize: "14px"}}
-        >
-          ← Back
+        <button onClick={() => navigate("/dashboard")} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "white", padding: "10px 18px", borderRadius: "12px", cursor: "pointer" }}>
+          ← Dashboard
         </button>
       </nav>
 
-      <div style={{maxWidth: "800px", margin: "40px auto", padding: "0 16px"}}>
-        <h1 style={{fontSize: "24px", fontWeight: "bold", marginBottom: "8px"}}>Interview Prep</h1>
-        <p style={{color: "#6b7280", fontSize: "14px", marginBottom: "32px"}}>Get role-specific interview questions with insider tips</p>
+      <div style={{ maxWidth: "1000px", margin: "40px auto", padding: "0 20px" }}>
+        <div style={{ marginBottom: "30px" }}>
+          <h1 style={{ fontSize: "34px", marginBottom: "10px" }}>Interview Preparation</h1>
+          <p style={{ color: "#94a3b8", fontSize: "16px" }}>Generate AI-powered interview questions tailored to your role.</p>
+        </div>
 
         {error && (
-          <div style={{backgroundColor: "rgba(239,68,68,0.1)", border: "1px solid #ef4444", color: "#f87171", fontSize: "14px", padding: "12px 16px", borderRadius: "8px", marginBottom: "16px"}}>
+          <div style={{ background: "rgba(239,68,68,0.12)", color: "#f87171", border: "1px solid rgba(239,68,68,0.3)", padding: "14px", borderRadius: "12px", marginBottom: "20px" }}>
             {error}
           </div>
         )}
 
-        <div style={{display: "flex", flexDirection: "column", gap: "16px", marginBottom: "24px"}}>
-          <div>
-            <label style={{color: "#9ca3af", fontSize: "14px", display: "block", marginBottom: "8px"}}>Job Role *</label>
+        <div style={{ background: "rgba(17,24,39,0.75)", backdropFilter: "blur(18px)", borderRadius: "20px", padding: "30px", border: "1px solid rgba(255,255,255,0.06)", marginBottom: "30px" }}>
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ display: "block", marginBottom: "8px", color: "#cbd5e1", fontWeight: "600" }}>Job Role *</label>
             <input
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              placeholder="e.g. Frontend Developer, Data Analyst, SDE"
-              style={{width: "100%", backgroundColor: "#1f2937", border: "1px solid #374151", color: "white", padding: "12px 16px", borderRadius: "8px", outline: "none", fontSize: "14px", boxSizing: "border-box"}}
+              placeholder="Frontend Developer, MERN Stack Developer..."
+              style={{ width: "100%", padding: "14px", borderRadius: "12px", border: "1px solid #334155", background: "#0f172a", color: "white", fontSize: "15px", outline: "none", boxSizing: "border-box" }}
             />
           </div>
-          <div>
-            <label style={{color: "#9ca3af", fontSize: "14px", display: "block", marginBottom: "8px"}}>Job Description (optional)</label>
+
+          <div style={{ marginBottom: "25px" }}>
+            <label style={{ display: "block", marginBottom: "8px", color: "#cbd5e1", fontWeight: "600" }}>Job Description (Optional)</label>
             <textarea
               value={jd}
               onChange={(e) => setJd(e.target.value)}
-              placeholder="Paste job description for more specific questions..."
-              rows={4}
-              style={{width: "100%", backgroundColor: "#1f2937", border: "1px solid #374151", color: "white", padding: "12px 16px", borderRadius: "8px", outline: "none", fontSize: "14px", boxSizing: "border-box", resize: "vertical"}}
+              rows={6}
+              placeholder="Paste job description for better questions..."
+              style={{ width: "100%", padding: "14px", borderRadius: "12px", border: "1px solid #334155", background: "#0f172a", color: "white", fontSize: "15px", resize: "vertical", outline: "none", boxSizing: "border-box" }}
             />
           </div>
+
+          <button
+            onClick={generateQuestions}
+            disabled={loading}
+            style={{ background: "linear-gradient(135deg,#10b981,#3b82f6)", color: "white", border: "none", padding: "14px 28px", borderRadius: "12px", cursor: "pointer", fontWeight: "600", fontSize: "15px" }}
+          >
+            {loading ? "Generating..." : "Generate Questions"}
+          </button>
         </div>
 
-        <button
-          onClick={generateQuestions}
-          disabled={loading}
-          style={{backgroundColor: "#d97706", color: "white", padding: "12px 32px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "600", fontSize: "16px", opacity: loading ? 0.5 : 1, marginBottom: "32px"}}
-        >
-          {loading ? "Generating..." : "Generate Questions →"}
-        </button>
-
         {result && (
-          <div style={{display: "flex", flexDirection: "column", gap: "24px"}}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
 
-            <div style={{backgroundColor: "#111827", border: "1px solid #1f2937", borderRadius: "12px", padding: "24px"}}>
-              <h3 style={{color: "#3b82f6", fontSize: "18px", fontWeight: "600", marginBottom: "20px"}}>💻 Technical Questions</h3>
+            <div style={{ background: "rgba(17,24,39,0.75)", borderRadius: "20px", padding: "28px", border: "1px solid rgba(255,255,255,0.06)" }}>
+              <h2 style={{ marginBottom: "20px", color: "#60a5fa" }}>💻 Technical Questions</h2>
               {result.technical.map((q, i) => (
-                <div key={i} style={{marginBottom: "20px", paddingBottom: "20px", borderBottom: i < result.technical.length - 1 ? "1px solid #1f2937" : "none"}}>
-                  <p style={{color: "white", fontSize: "15px", fontWeight: "500", marginBottom: "8px"}}>Q{i + 1}. {q.question}</p>
-                  <p style={{color: "#6b7280", fontSize: "13px", paddingLeft: "12px", borderLeft: "2px solid #3b82f6"}}>💡 {q.tip}</p>
+                <div key={i} style={{ marginBottom: "20px", paddingBottom: "20px", borderBottom: i !== result.technical.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
+                  <p style={{ fontWeight: "600", marginBottom: "8px", color: "white" }}>Q{i + 1}. {q.question}</p>
+                  <p style={{ color: "#94a3b8" }}>💡 {q.tip}</p>
                 </div>
               ))}
             </div>
 
-            <div style={{backgroundColor: "#111827", border: "1px solid #1f2937", borderRadius: "12px", padding: "24px"}}>
-              <h3 style={{color: "#22c55e", fontSize: "18px", fontWeight: "600", marginBottom: "20px"}}>🤝 Behavioral Questions</h3>
+            <div style={{ background: "rgba(17,24,39,0.75)", borderRadius: "20px", padding: "28px", border: "1px solid rgba(255,255,255,0.06)" }}>
+              <h2 style={{ marginBottom: "20px", color: "#22c55e" }}>🤝 Behavioral Questions</h2>
               {result.behavioral.map((q, i) => (
-                <div key={i} style={{marginBottom: "20px", paddingBottom: "20px", borderBottom: i < result.behavioral.length - 1 ? "1px solid #1f2937" : "none"}}>
-                  <p style={{color: "white", fontSize: "15px", fontWeight: "500", marginBottom: "8px"}}>Q{i + 1}. {q.question}</p>
-                  <p style={{color: "#6b7280", fontSize: "13px", paddingLeft: "12px", borderLeft: "2px solid #22c55e"}}>💡 {q.tip}</p>
+                <div key={i} style={{ marginBottom: "20px", paddingBottom: "20px", borderBottom: i !== result.behavioral.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
+                  <p style={{ fontWeight: "600", marginBottom: "8px", color: "white" }}>Q{i + 1}. {q.question}</p>
+                  <p style={{ color: "#94a3b8" }}>💡 {q.tip}</p>
                 </div>
               ))}
             </div>
 
-            <div style={{backgroundColor: "#111827", border: "1px solid #1f2937", borderRadius: "12px", padding: "24px"}}>
-              <h3 style={{color: "#f59e0b", fontSize: "18px", fontWeight: "600", marginBottom: "20px"}}>👔 HR Questions</h3>
+            <div style={{ background: "rgba(17,24,39,0.75)", borderRadius: "20px", padding: "28px", border: "1px solid rgba(255,255,255,0.06)" }}>
+              <h2 style={{ marginBottom: "20px", color: "#f59e0b" }}>👔 HR Questions</h2>
               {result.hr.map((q, i) => (
-                <div key={i} style={{marginBottom: "20px", paddingBottom: "20px", borderBottom: i < result.hr.length - 1 ? "1px solid #1f2937" : "none"}}>
-                  <p style={{color: "white", fontSize: "15px", fontWeight: "500", marginBottom: "8px"}}>Q{i + 1}. {q.question}</p>
-                  <p style={{color: "#6b7280", fontSize: "13px", paddingLeft: "12px", borderLeft: "2px solid #f59e0b"}}>💡 {q.tip}</p>
+                <div key={i} style={{ marginBottom: "20px", paddingBottom: "20px", borderBottom: i !== result.hr.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
+                  <p style={{ fontWeight: "600", marginBottom: "8px", color: "white" }}>Q{i + 1}. {q.question}</p>
+                  <p style={{ color: "#94a3b8" }}>💡 {q.tip}</p>
                 </div>
               ))}
             </div>
