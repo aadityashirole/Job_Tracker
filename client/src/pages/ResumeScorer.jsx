@@ -25,7 +25,7 @@ function ResumeScorer() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/ai/resume-scorer",
+        "https://job-tracker-qyzl.onrender.com/api/ai/resume-scorer",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

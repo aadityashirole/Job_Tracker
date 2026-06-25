@@ -30,7 +30,7 @@ function JDAnalyzer() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/ai/jd-analyzer",
+        "https://job-tracker-qyzl.onrender.com/api/ai/jd-analyzer",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
