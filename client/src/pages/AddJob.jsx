@@ -12,9 +12,11 @@ function AddJob() {
     company_name: "",
     role_title: "",
     job_description: "",
+    job_link: "",
     status: "applied",
     applied_date: "",
     notes: ""
+
   })
 
   function handleChange(e) {
@@ -299,7 +301,10 @@ function AddJob() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "1fr 1fr",
+              gridTemplateColumns:
+                window.innerWidth < 768
+                  ? "1fr"
+                  : "1fr 1fr",
               gap: "20px",
               marginBottom: "22px"
             }}

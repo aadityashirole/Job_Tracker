@@ -11,11 +11,12 @@ function EditJobs() {
     const [form, setForm] = useState({
         company_name: "",
         role_title: "",
+        job_link: "",
         job_description: "",
         status: "applied",
         applied_date: "",
         notes: "",
-        job_link: ""
+
     })
 
     useEffect(() => {
@@ -29,13 +30,14 @@ function EditJobs() {
         setForm({
             company_name: job.company_name || "",
             role_title: job.role_title || "",
+            job_link: job.job_link || "",
             job_description: job.job_description || "",
             status: job.status || "applied",
             applied_date: job.applied_date
                 ? job.applied_date.slice(0, 10)
                 : "",
             notes: job.notes || "",
-            job_link: job.job_link || "",
+
         })
     }
 
@@ -308,7 +310,10 @@ function EditJobs() {
                     <div
                         style={{
                             display: "grid",
-                            gridTemplateColumns: "1fr 1fr",
+                            gridTemplateColumns:
+                                window.innerWidth < 768
+                                    ? "1fr"
+                                    : "1fr 1fr",
                             gap: "20px",
                             marginBottom: "22px"
                         }}

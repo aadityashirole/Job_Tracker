@@ -13,9 +13,12 @@
     "@google/generative-ai": "^0.24.1",
     "@hello-pangea/dnd": "^18.0.1",
     "@tailwindcss/vite": "^4.3.0",
+    "prop-types": "^15.8.1",
     "react": "^19.2.6",
+    "react-csv": "^2.2.2",
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.17.0",
+    "recharts": "^3.9.0",
     "tailwindcss": "^4.3.0"
   },
   "devDependencies": {

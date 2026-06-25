@@ -2,6 +2,14 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { getJobs, updateJobStatus, deleteJob } from "../api"
 import KanbanBoard from "../components/KanbanBoard"
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer
+} from "recharts"
+import { CSVLink } from "react-csv"
 
 function Dashboard() {
   const [user, setUser] = useState(null)
@@ -9,6 +17,8 @@ function Dashboard() {
   const [view, setView] = useState("list")
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
+  const [selectedJob, setSelectedJob] = useState(null)
+  const [loading, setLoading] = useState(true)
 
 
   const navigate = useNavigate()
@@ -22,34 +32,59 @@ function Dashboard() {
   }, [])
 
   async function fetchJobs(token) {
-    const data = await getJobs(token)
-    if (Array.isArray(data)) setJobs(data)
+    try {
+      setLoading(true)
+
+      const data = await getJobs(token)
+
+      if (Array.isArray(data)) {
+        setJobs(data)
+      }
+    }
+    catch (err) {
+      console.error(err)
+      alert("Failed to load jobs")
+    }
+    finally {
+      setLoading(false)
+    }
   }
 
   async function handleStatusUpdate(jobId, newStatus) {
-    const token = localStorage.getItem("token")
+    try {
+      const token = localStorage.getItem("token")
 
-    await updateJobStatus(token, jobId, newStatus)
+      await updateJobStatus(token, jobId, newStatus)
 
-    setJobs(
-      jobs.map(job =>
-        job._id === jobId
-          ? { ...job, status: newStatus }
-          : job
+      setJobs(
+        jobs.map(job =>
+          job._id === jobId
+            ? { ...job, status: newStatus }
+            : job
+        )
       )
-    )
+    }
+    catch (err) {
+      console.error(err)
+      alert("Failed to update status")
+    }
   }
 
   async function handleDeleteJob(jobId) {
-    const token = localStorage.getItem("token")
+    try {
+      const token = localStorage.getItem("token")
 
-    await deleteJob(token, jobId)
+      await deleteJob(token, jobId)
 
-    setJobs(
-      jobs.filter(job => job._id !== jobId)
-    )
+      setJobs(
+        jobs.filter(job => job._id !== jobId)
+      )
+    }
+    catch (err) {
+      console.error(err)
+      alert("Failed to delete job")
+    }
   }
-
   function handleLogout() {
     localStorage.removeItem("token")
     localStorage.removeItem("user")
@@ -61,6 +96,60 @@ function Dashboard() {
   const shortlisted = jobs.filter(j => j.status === "shortlisted").length
   const offers = jobs.filter(j => j.status === "offer").length
   const rejected = jobs.filter(j => j.status === "rejected").length
+  const chartData = [
+    {
+      name: "Applied",
+      value: jobs.filter(j => j.status === "applied").length
+    },
+    {
+      name: "Shortlisted",
+      value: shortlisted
+    },
+    {
+      name: "Interview",
+      value: interviews
+    },
+    {
+      name: "Offer",
+      value: offers
+    },
+    {
+      name: "Rejected",
+      value: rejected
+    }
+  ]
+  const COLORS = [
+    "#94A3B8",
+    "#F59E0B",
+    "#60A5FA",
+    "#00ED64",
+    "#EF4444"
+  ]
+  const recentJobs = [...jobs]
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt) -
+        new Date(a.createdAt)
+    )
+    .slice(0, 5)
+  const interviewRate =
+    totalJobs > 0
+      ? ((interviews / totalJobs) * 100).toFixed(1)
+      : 0
+
+  const successRate =
+    totalJobs > 0
+      ? ((offers / totalJobs) * 100).toFixed(1)
+      : 0
+  const csvData = jobs.map(job => ({
+    Company: job.company_name,
+    Role: job.role_title,
+    Status: job.status,
+    AppliedDate: job.applied_date
+      ? job.applied_date.slice(0, 10)
+      : "",
+    Notes: job.notes || ""
+  }))
   const filteredJobs = jobs.filter(job => {
     const matchesSearch =
       job.company_name
@@ -86,6 +175,24 @@ function Dashboard() {
     transition: "0.3s ease"
   }
 
+  if (loading) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          background: "#0A0F1C",
+          color: "white",
+          fontSize: "22px"
+        }}
+      >
+        Loading Applications...
+      </div>
+    )
+  }
+
 
   return (
     <div
@@ -106,10 +213,12 @@ function Dashboard() {
           backdropFilter: "blur(20px)",
           background: "rgba(10,15,28,0.75)",
           borderBottom: "1px solid rgba(255,255,255,0.06)",
-          padding: "18px 40px",
+          padding: "18px 20px",
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "center"
+          alignItems: "flex-start",
+          flexWrap: "wrap",
+          gap: "12px"
         }}
       >
         <div
@@ -192,7 +301,7 @@ function Dashboard() {
 
       <div
         style={{
-          padding: "40px"
+          padding: "20px"
         }}
       >
         {/* HERO */}
@@ -221,7 +330,7 @@ function Dashboard() {
 
           <h1
             style={{
-              fontSize: "46px",
+              fontSize: "clamp(32px, 6vw, 46px)",
               fontWeight: "800",
               lineHeight: "1.1",
               marginBottom: "14px"
@@ -235,7 +344,7 @@ function Dashboard() {
           <p
             style={{
               color: "#94A3B8",
-              fontSize: "17px",
+              fontSize: "clamp(14px,3vw,17px)",
               maxWidth: "700px",
               lineHeight: "1.7"
             }}
@@ -315,7 +424,22 @@ function Dashboard() {
           >
             🎯 Interview Prep
           </button>
+          <CSVLink
+            data={csvData}
+            filename={"job-applications.csv"}
+            style={{
+              background: "#F59E0B",
+              color: "#071018",
+              padding: "14px 22px",
+              borderRadius: "12px",
+              fontWeight: "700",
+              textDecoration: "none"
+            }}
+          >
+            📥 Export CSV
+          </CSVLink>
         </div>
+
 
         {/* STATS */}
 
@@ -405,8 +529,76 @@ function Dashboard() {
               {rejected}
             </h2>
           </div>
+          <div style={statCard}>
+            <p style={{ color: "#94A3B8" }}>
+              Interview Rate
+            </p>
+
+            <h2
+              style={{
+                color: "#60A5FA",
+                margin: 0
+              }}
+            >
+              {interviewRate}%
+            </h2>
+          </div>
+
+          <div style={statCard}>
+            <p style={{ color: "#94A3B8" }}>
+              Success Rate
+            </p>
+
+            <h2
+              style={{
+                color: "#00ED64",
+                margin: 0
+              }}
+            >
+              {successRate}%
+            </h2>
+          </div>
         </div>
 
+        <div
+          style={{
+            background: "rgba(17,24,39,0.75)",
+            backdropFilter: "blur(16px)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: "24px",
+            padding: "24px",
+            marginBottom: "30px"
+          }}
+        >
+          <h2 style={{ marginBottom: "20px" }}>
+            Recent Activity
+          </h2>
+
+          {recentJobs.map(job => (
+            <div
+              key={job._id}
+              style={{
+                padding: "12px 0",
+                borderBottom:
+                  "1px solid rgba(255,255,255,0.05)"
+              }}
+            >
+              <strong>{job.company_name}</strong>
+              {" - "}
+              {job.role_title}
+
+              <div
+                style={{
+                  color: "#94A3B8",
+                  fontSize: "13px",
+                  marginTop: "4px"
+                }}
+              >
+                {new Date(job.createdAt).toLocaleDateString()}
+              </div>
+            </div>
+          ))}
+        </div>
         {/* PART 2 STARTS FROM HERE */}
         <div
           style={{
@@ -566,7 +758,7 @@ function Dashboard() {
               </p>
             </div>
           ) : view === "list" ? (
-            jobs.map(job => (
+            filteredJobs.map(job => (
               <div
                 key={job._id}
                 style={{
@@ -639,6 +831,17 @@ function Dashboard() {
                   >
                     {job.role_title}
                   </p>
+                  {job.notes && (
+                    <p
+                      style={{
+                        color: "#94A3B8",
+                        marginTop: "8px",
+                        fontSize: "14px"
+                      }}
+                    >
+                      📝 {job.notes}
+                    </p>
+                  )}
                 </div>
 
                 <div
@@ -690,11 +893,27 @@ function Dashboard() {
                   >
                     Edit
                   </button>
+                  <button
+                    onClick={() => setSelectedJob(job)}
+                    style={{
+                      background: "rgba(245,158,11,0.12)",
+                      border: "1px solid rgba(245,158,11,0.25)",
+                      color: "#F59E0B",
+                      padding: "10px 14px",
+                      borderRadius: "10px",
+                      cursor: "pointer",
+                      fontWeight: "600"
+                    }}
+                  >
+                    Timeline
+                  </button>
 
                   <button
-                    onClick={() =>
-                      handleDeleteJob(job._id)
-                    }
+                    onClick={() => {
+                      if (window.confirm("Are you sure you want to delete this application?")) {
+                        handleDeleteJob(job._id)
+                      }
+                    }}
                     style={{
                       background:
                         "rgba(239,68,68,0.12)",
@@ -720,10 +939,77 @@ function Dashboard() {
               }))}
               onStatusUpdate={handleStatusUpdate}
               onDeleteJob={handleDeleteJob}
+              onShowTimeline={setSelectedJob}
             />
           )}
         </div>
       </div>
+      {selectedJob && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.7)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 999
+          }}
+        >
+          <div
+            style={{
+              background: "#111827",
+              width: "500px",
+              maxWidth: "90%",
+              padding: "24px",
+              borderRadius: "20px",
+              border: "1px solid rgba(255,255,255,0.08)"
+            }}
+          >
+            <h2>{selectedJob.company_name}</h2>
+
+            <p style={{ color: "#94A3B8" }}>
+              Status Timeline
+            </p>
+
+            {selectedJob.statusHistory?.map((item, index) => (
+              <div
+                key={index}
+                style={{
+                  padding: "12px 0",
+                  borderBottom:
+                    "1px solid rgba(255,255,255,0.05)"
+                }}
+              >
+                <strong>{item.status}</strong>
+
+                <div
+                  style={{
+                    color: "#94A3B8",
+                    fontSize: "14px"
+                  }}
+                >
+                  {new Date(item.date).toLocaleDateString()}
+                </div>
+              </div>
+            ))}
+
+            <button
+              onClick={() => setSelectedJob(null)}
+              style={{
+                marginTop: "20px",
+                width: "100%",
+                padding: "12px",
+                border: "none",
+                borderRadius: "10px",
+                cursor: "pointer"
+              }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

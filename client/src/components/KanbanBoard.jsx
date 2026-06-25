@@ -11,7 +11,8 @@ const columns = [
 function KanbanBoard({
   jobs,
   onStatusUpdate,
-  onDeleteJob
+  onDeleteJob,
+  onShowTimeline
 }) {
   function handleDragEnd(result) {
     if (!result.destination) return
@@ -146,7 +147,26 @@ function KanbanBoard({
                                 </button>
 
                                 <button
-                                  onClick={() => onDeleteJob(job.id)}
+                                  onClick={() => onShowTimeline(job)}
+                                  style={{
+                                    background: "rgba(245,158,11,0.12)",
+                                    border: "1px solid rgba(245,158,11,0.25)",
+                                    color: "#F59E0B",
+                                    borderRadius: "8px",
+                                    padding: "4px 8px",
+                                    cursor: "pointer",
+                                    fontSize: "12px"
+                                  }}
+                                >
+                                  Timeline
+                                </button>
+
+                                <button
+                                  onClick={() => {
+                                    if (window.confirm("Are you sure you want to delete this application?")) {
+                                      onDeleteJob(job.id)
+                                    }
+                                  }}
                                   style={{
                                     background: "rgba(239,68,68,0.12)",
                                     border: "1px solid rgba(239,68,68,0.25)",

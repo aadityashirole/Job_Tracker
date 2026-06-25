@@ -52,7 +52,16 @@ router.get("/:id", verifyToken, async (req, res) => {
 // Add new job
 router.post("/", verifyToken, async (req, res) => {
     try {
-        const job = await Job.create({ ...req.body, userId: req.userId })
+        const job = await Job.create({
+            ...req.body,
+            userId: req.userId,
+
+            statusHistory: [
+                {
+                    status: req.body.status || "applied"
+                }
+            ]
+        })
         res.status(201).json(job)
     } catch (err) {
         res.status(500).json({ message: "Server error", error: err.message })
@@ -62,14 +71,39 @@ router.post("/", verifyToken, async (req, res) => {
 // Update job status
 router.put("/:id", verifyToken, async (req, res) => {
     try {
-        const job = await Job.findOneAndUpdate(
-            { _id: req.params.id, userId: req.userId },
-            req.body,
-            { new: true }
-        )
+
+        const job = await Job.findOne({
+            _id: req.params.id,
+            userId: req.userId
+        })
+
+        if (!job) {
+            return res.status(404).json({
+                message: "Job not found"
+            })
+        }
+
+        if (
+            req.body.status &&
+            req.body.status !== job.status
+        ) {
+            job.statusHistory.push({
+                status: req.body.status,
+                date: new Date()
+            })
+        }
+
+        Object.assign(job, req.body)
+
+        await job.save()
+
         res.json(job)
+
     } catch (err) {
-        res.status(500).json({ message: "Server error", error: err.message })
+        res.status(500).json({
+            message: "Server error",
+            error: err.message
+        })
     }
 })
 
