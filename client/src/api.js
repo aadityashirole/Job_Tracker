@@ -1,4 +1,18 @@
-const API_URL = `${import.meta.env.VITE_API_URL || "https://job-tracker-qyzl.onrender.com"}/api`
+const API_BASE = (import.meta.env.VITE_API_URL || "https://job-tracker-qyzl.onrender.com").trim().replace(/\/+$/, "")
+const API_URL = API_BASE.endsWith("/api") ? API_BASE : `${API_BASE}/api`
+
+async function handleResponse(res) {
+    const text = await res.text()
+
+    try {
+        return JSON.parse(text)
+    } catch {
+        return {
+            message: text || "Request failed",
+            status: res.status
+        }
+    }
+}
 
 export async function registerUser(name, email, password) {
     const res = await fetch(`${API_URL}/auth/register`, {
@@ -6,7 +20,7 @@ export async function registerUser(name, email, password) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password })
     })
-    return res.json()
+    return handleResponse(res)
 }
 
 export async function loginUser(email, password) {
@@ -15,14 +29,14 @@ export async function loginUser(email, password) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
     })
-    return res.json()
+    return handleResponse(res)
 }
 
 export async function getJobs(token) {
     const res = await fetch(`${API_URL}/jobs`, {
         headers: { "Authorization": `Bearer ${token}` }
     })
-    return res.json()
+    return handleResponse(res)
 }
 
 export async function addJob(token, jobData) {
@@ -34,7 +48,7 @@ export async function addJob(token, jobData) {
         },
         body: JSON.stringify(jobData)
     })
-    return res.json()
+    return handleResponse(res)
 }
 
 export async function updateJobStatus(token, jobId, status) {
@@ -46,7 +60,7 @@ export async function updateJobStatus(token, jobId, status) {
         },
         body: JSON.stringify({ status })
     })
-    return res.json()
+    return handleResponse(res)
 }
 
 export async function deleteJob(token, jobId) {
@@ -54,8 +68,9 @@ export async function deleteJob(token, jobId) {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
     })
-    return res.json()
+    return handleResponse(res)
 }
+
 export async function updateJob(token, jobId, jobData) {
     const res = await fetch(`${API_URL}/jobs/${jobId}`, {
         method: "PUT",
@@ -66,8 +81,9 @@ export async function updateJob(token, jobId, jobData) {
         body: JSON.stringify(jobData)
     })
 
-    return res.json()
+    return handleResponse(res)
 }
+
 export async function getJobById(token, jobId) {
     const res = await fetch(`${API_URL}/jobs/${jobId}`, {
         headers: {
@@ -75,5 +91,5 @@ export async function getJobById(token, jobId) {
         }
     })
 
-    return res.json()
+    return handleResponse(res)
 }
