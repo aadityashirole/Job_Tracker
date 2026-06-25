@@ -25,7 +25,7 @@ function ResumeScorer() {
 
     try {
       const response = await fetch(
-        "https://job-tracker-qyzl.onrender.com/api/ai/resume-scorer",
+        `${import.meta.env.VITE_API_URL || "https://job-tracker-qyzl.onrender.com"}/api/ai/resume-scorer`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

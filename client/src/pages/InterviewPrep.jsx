@@ -24,7 +24,7 @@ function InterviewPrep() {
     setResult(null)
 
     try {
-      const response = await fetch("https://job-tracker-qyzl.onrender.com/api/ai/interview-prep", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || "https://job-tracker-qyzl.onrender.com"}/api/ai/interview-prep`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ role, jd })
