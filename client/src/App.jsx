@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { useState, useEffect } from "react"
 import Landing from "./pages/Landing"
 import Login from "./pages/Login"
+import Register from "./pages/Register"
 import Dashboard from "./pages/Dashboard"
 import AddJob from "./pages/AddJob"
 import JDAnalyzer from "./pages/JDAnalyzer"
@@ -26,6 +27,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={!token ? <Login /> : <Navigate to="/dashboard" />} />
+        <Route path="/register" element={!token ? <Register /> : <Navigate to="/dashboard" />} />
         <Route path="/dashboard" element={token ? <Dashboard /> : <Navigate to="/login" />} />
         <Route path="/add-job" element={token ? <AddJob /> : <Navigate to="/login" />} />
         <Route path="/jd-analyzer" element={token ? <JDAnalyzer /> : <Navigate to="/login" />} />

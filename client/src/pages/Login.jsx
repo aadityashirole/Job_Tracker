@@ -1,7 +1,9 @@
 import { useState } from "react"
-import { loginUser, registerUser } from "../api"
+import { useNavigate } from "react-router-dom"
+import { loginUser } from "../api"
 
 function Login() {
+  const navigate = useNavigate()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
@@ -16,27 +18,6 @@ function Login() {
     setLoading(false)
 
     if (data.message) {
-      setError(data.message)
-    } else {
-      localStorage.setItem("token", data.token)
-      localStorage.setItem("user", JSON.stringify(data.user))
-      window.location.href = "/dashboard"
-    }
-  }
-
-  async function handleSignup() {
-    setLoading(true)
-    setError("")
-
-    const data = await registerUser(
-      email.split("@")[0],
-      email,
-      password
-    )
-
-    setLoading(false)
-
-    if (data.message && !data.token) {
       setError(data.message)
     } else {
       localStorage.setItem("token", data.token)
@@ -286,7 +267,7 @@ function Login() {
 
         {/* Signup */}
         <button
-          onClick={handleSignup}
+          onClick={() => navigate("/register")}
           disabled={loading}
           style={{
             width: "100%",
