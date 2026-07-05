@@ -132,7 +132,13 @@ Return ONLY valid JSON.
         const parsed = JSON.parse(cleaned)
         res.json(parsed)
     } catch (err) {
-        res.status(500).json({ message: "AI request failed", error: err.message })
+        console.error(err);
+
+        res.status(500).json({
+            message: "AI request failed",
+            error: err.message,
+            stack: err.stack
+        });
     }
 })
 
