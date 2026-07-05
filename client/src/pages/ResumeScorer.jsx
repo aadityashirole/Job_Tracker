@@ -55,7 +55,7 @@ function ResumeScorer() {
   }
 
   
-}
+
 
 return (
   <div
@@ -510,5 +510,6 @@ return (
   </div>
 )
 
+}
 
 export default ResumeScorer
