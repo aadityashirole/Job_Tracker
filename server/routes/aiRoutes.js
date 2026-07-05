@@ -30,7 +30,7 @@ Respond in this exact JSON format only, no extra text, no markdown:
                 "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
             },
             body: JSON.stringify({
-                model: "llama-3.1-8b-instant",
+                model: "llama-3.3-70b-versatile",
 
                 response_format: {
                     type: "json_object"
@@ -120,7 +120,7 @@ Return ONLY valid JSON.
                 "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
             },
             body: JSON.stringify({
-                model: "llama-3.1-8b-instant",
+                model: "llama-3.3-70b-versatile",
                 messages: [{ role: "user", content: prompt }],
                 temperature: 0.3
             })
@@ -181,7 +181,7 @@ Respond in this exact JSON format only, no extra text, no markdown:
                 "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
             },
             body: JSON.stringify({
-                model: "llama-3.1-8b-instant",
+                model: "llama-3.3-70b-versatile",
                 messages: [{ role: "user", content: prompt }],
                 temperature: 0.5
             })
@@ -191,14 +191,16 @@ Respond in this exact JSON format only, no extra text, no markdown:
 
         const text = data.choices[0].message.content;
 
-        console.log(text);   // keep this for debugging
+        console.log("Groq Response:");
+        console.log(text);
 
-        const start = text.indexOf("{");
-        const end = text.lastIndexOf("}");
+        const match = text.match(/\{[\s\S]*\}/);
 
-        const json = text.substring(start, end + 1);
+        if (!match) {
+            throw new Error("No JSON found in AI response.");
+        }
 
-        const result = JSON.parse(json);
+        const result = JSON.parse(match[0]);
 
         res.json(result);
     } catch (err) {
