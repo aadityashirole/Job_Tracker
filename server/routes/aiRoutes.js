@@ -181,11 +181,20 @@ Respond in this exact JSON format only, no extra text, no markdown:
             })
         })
 
-        const data = await response.json()
-        const text = data.choices[0].message.content
-        const cleaned = text.replace(/```json|```/g, "").trim()
-        const parsed = JSON.parse(cleaned)
-        res.json(parsed)
+        const data = await response.json();
+
+        const text = data.choices[0].message.content;
+
+        console.log(text);   // keep this for debugging
+
+        const start = text.indexOf("{");
+        const end = text.lastIndexOf("}");
+
+        const json = text.substring(start, end + 1);
+
+        const result = JSON.parse(json);
+
+        res.json(result);
     } catch (err) {
         res.status(500).json({ message: "AI request failed", error: err.message })
     }
