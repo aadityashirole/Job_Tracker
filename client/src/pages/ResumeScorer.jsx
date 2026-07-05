@@ -509,6 +509,6 @@ return (
     </div>
   </div>
 )
-}
+
 
 export default ResumeScorer
