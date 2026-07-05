@@ -31,7 +31,18 @@ Respond in this exact JSON format only, no extra text, no markdown:
             },
             body: JSON.stringify({
                 model: "llama-3.1-8b-instant",
-                messages: [{ role: "user", content: prompt }],
+
+                response_format: {
+                    type: "json_object"
+                },
+
+                messages: [
+                    {
+                        role: "user",
+                        content: prompt
+                    }
+                ],
+
                 temperature: 0.3
             })
         })

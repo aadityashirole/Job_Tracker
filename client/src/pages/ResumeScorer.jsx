@@ -32,8 +32,13 @@ function ResumeScorer() {
           body: JSON.stringify({ resume })
         }
       )
-      const parsed = await response.json()
-      setResult(parsed)
+      if (!response.ok) {
+        setError(parsed.message || "AI analysis failed");
+        setLoading(false);
+        return;
+      }
+
+      setResult(parsed);
     } catch (err) {
       console.error(err)
       setError("Something went wrong. Try again.")
@@ -297,7 +302,7 @@ function ResumeScorer() {
                 Section Breakdown
               </h3>
 
-              {Object.entries(result.sections).map(([key, value]) => (
+              {Object.entries(result.sections || {}).map(([key, value]) => (
                 <div key={key} style={{ marginBottom: "16px" }}>
                   <div
                     style={{
