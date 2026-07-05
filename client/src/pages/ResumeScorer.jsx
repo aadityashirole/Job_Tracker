@@ -320,7 +320,7 @@ function ResumeScorer() {
                         fontWeight: "600"
                       }}
                     >
-                      {value}/100
+                      {value}
                     </span>
                   </div>
 
@@ -334,7 +334,16 @@ function ResumeScorer() {
                   >
                     <div
                       style={{
-                        width: `${value}%`,
+                        width: `${key === "contact"
+                          ? (value / 5) * 100
+                          : key === "education"
+                            ? (value / 10) * 100
+                            : key === "ats"
+                              ? (value / 15) * 100
+                              : key === "grammar"
+                                ? (value / 10) * 100
+                                : (value / 20) * 100
+                          }%`,
                         height: "100%",
                         background:
                           value >= 70
@@ -419,6 +428,37 @@ function ResumeScorer() {
                     • {item}
                   </p>
                 ))}
+              </div>
+              <div
+                style={{
+                  background: "rgba(17,24,39,0.75)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  borderRadius: "24px",
+                  padding: "24px",
+                  marginBottom: "24px"
+                }}
+              >
+                <h3 style={{ color: "#f59e0b", marginBottom: "16px" }}>
+                  📌 Missing Sections
+                </h3>
+
+                {result.missing_sections.length === 0 ? (
+                  <p style={{ color: "#22c55e" }}>
+                    No important sections are missing.
+                  </p>
+                ) : (
+                  result.missing_sections.map((item, index) => (
+                    <p
+                      key={index}
+                      style={{
+                        color: "#cbd5e1",
+                        marginBottom: "10px"
+                      }}
+                    >
+                      • {item}
+                    </p>
+                  ))
+                )}
               </div>
             </div>
 

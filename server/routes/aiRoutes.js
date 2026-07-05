@@ -50,24 +50,55 @@ router.post("/resume-scorer", async (req, res) => {
         const { resume } = req.body
 
         const prompt = `
-You are an expert resume reviewer with 10 years of experience in tech hiring.
-Analyze this resume and provide detailed feedback.
+You are an expert ATS Resume Analyzer and Senior Technical Recruiter.
+
+Your task is to objectively evaluate the resume below.
+
+Scoring Rules:
+
+Contact Information (5 marks)
+Education (10 marks)
+Technical Skills (20 marks)
+Projects (20 marks)
+Work Experience (20 marks)
+ATS Keywords & Relevance (15 marks)
+Grammar & Formatting (10 marks)
+
+Rules:
+- Score each section independently.
+- The overall_score MUST be the exact sum of all section scores.
+- Never use a fixed score.
+- Base the score ONLY on the resume content.
+- If a section is missing, give it a low score.
+- If the resume is excellent, the score can exceed 90.
+- If the resume is weak, the score can be below 40.
 
 Resume:
+
 ${resume}
 
-Respond in this exact JSON format only, no extra text, no markdown:
+Return ONLY valid JSON.
+
 {
-  "overall_score": 72,
+  "overall_score": 0,
+
   "sections": {
-    "content": 75,
-    "structure": 80,
-    "impact": 65,
-    "keywords": 70
+    "contact": 0,
+    "education": 0,
+    "skills": 0,
+    "projects": 0,
+    "experience": 0,
+    "ats": 0,
+    "grammar": 0
   },
-  "strengths": ["strength1", "strength2", "strength3"],
-  "improvements": ["improvement1", "improvement2", "improvement3"],
-  "summary": "2-3 sentence overall assessment"
+
+  "strengths": [],
+
+  "improvements": [],
+
+  "missing_sections": [],
+
+  "summary": ""
 }
 `
 
