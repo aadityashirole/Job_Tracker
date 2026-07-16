@@ -1,7 +1,9 @@
 const express = require("express")
 const router = express.Router()
+const Question = require("../models/Question") // Added the DB Model
 
 router.post("/jd-analyzer", async (req, res) => {
+    // ... [KEEP YOUR EXISTING CODE HERE - NO CHANGES] ...
     try {
         const { skills, jd } = req.body
 
@@ -31,18 +33,8 @@ Respond in this exact JSON format only, no extra text, no markdown:
             },
             body: JSON.stringify({
                 model: "llama-3.3-70b-versatile",
-
-                response_format: {
-                    type: "json_object"
-                },
-
-                messages: [
-                    {
-                        role: "user",
-                        content: prompt
-                    }
-                ],
-
+                response_format: { type: "json_object" },
+                messages: [{ role: "user", content: prompt }],
                 temperature: 0.3
             })
         })
@@ -56,17 +48,16 @@ Respond in this exact JSON format only, no extra text, no markdown:
         res.status(500).json({ message: "AI request failed", error: err.message })
     }
 })
+
 router.post("/resume-scorer", async (req, res) => {
+    // ... [KEEP YOUR EXISTING CODE HERE - NO CHANGES] ...
     try {
         const { resume } = req.body
 
         const prompt = `
 You are an expert ATS Resume Analyzer and Senior Technical Recruiter.
-
 Your task is to objectively evaluate the resume below.
-
 Scoring Rules:
-
 Contact Information (5 marks)
 Education (10 marks)
 Technical Skills (20 marks)
@@ -85,31 +76,15 @@ Rules:
 - If the resume is weak, the score can be below 40.
 
 Resume:
-
 ${resume}
 
 Return ONLY valid JSON.
-
 {
   "overall_score": 0,
-
   "sections": {
-    "contact": 0,
-    "education": 0,
-    "skills": 0,
-    "projects": 0,
-    "experience": 0,
-    "ats": 0,
-    "grammar": 0
+    "contact": 0, "education": 0, "skills": 0, "projects": 0, "experience": 0, "ats": 0, "grammar": 0
   },
-
-  "strengths": [],
-
-  "improvements": [],
-
-  "missing_sections": [],
-
-  "summary": ""
+  "strengths": [], "improvements": [], "missing_sections": [], "summary": ""
 }
 `
 
@@ -133,19 +108,30 @@ Return ONLY valid JSON.
         res.json(parsed)
     } catch (err) {
         console.error(err);
-
-        res.status(500).json({
-            message: "AI request failed",
-            error: err.message,
-            stack: err.stack
-        });
+        res.status(500).json({ message: "AI request failed", error: err.message, stack: err.stack });
     }
 })
 
+// --- UPDATED HYBRID ROUTE ---
 router.post("/interview-prep", async (req, res) => {
     try {
         const { role, jd } = req.body
 
+        // 1. Check Database First (Case-insensitive)
+        const dbQuestions = await Question.findOne({ role: new RegExp(`^${role}$`, 'i') })
+
+        if (dbQuestions) {
+            console.log("Serving curated questions from Database")
+            return res.json({
+                source: "database", // Flag for frontend
+                technical: dbQuestions.technical,
+                behavioral: dbQuestions.behavioral,
+                hr: dbQuestions.hr
+            })
+        }
+
+        console.log("No DB match found. Generating with Groq AI...")
+        // 2. Fallback to Groq AI
         const prompt = `
 You are an expert technical interviewer at a top tech company.
 Generate interview questions for the following role.
@@ -156,19 +142,12 @@ ${jd ? `Job Description: ${jd}` : ""}
 Respond in this exact JSON format only, no extra text, no markdown:
 {
   "technical": [
-    {"question": "question text", "tip": "what interviewer looks for"},
-    {"question": "question text", "tip": "what interviewer looks for"},
-    {"question": "question text", "tip": "what interviewer looks for"},
-    {"question": "question text", "tip": "what interviewer looks for"},
     {"question": "question text", "tip": "what interviewer looks for"}
   ],
   "behavioral": [
-    {"question": "question text", "tip": "what interviewer looks for"},
-    {"question": "question text", "tip": "what interviewer looks for"},
     {"question": "question text", "tip": "what interviewer looks for"}
   ],
   "hr": [
-    {"question": "question text", "tip": "what interviewer looks for"},
     {"question": "question text", "tip": "what interviewer looks for"}
   ]
 }
@@ -188,12 +167,7 @@ Respond in this exact JSON format only, no extra text, no markdown:
         })
 
         const data = await response.json();
-
         const text = data.choices[0].message.content;
-
-        console.log("Groq Response:");
-        console.log(text);
-
         const match = text.match(/\{[\s\S]*\}/);
 
         if (!match) {
@@ -201,6 +175,20 @@ Respond in this exact JSON format only, no extra text, no markdown:
         }
 
         const result = JSON.parse(match[0]);
+        result.source = "ai"; // Flag for frontend
+
+        // 3. Optional Bonus: Save AI generated questions to DB for next time
+        try {
+            await Question.create({
+                role: role.toLowerCase(), // Normalize role string
+                technical: result.technical,
+                behavioral: result.behavioral,
+                hr: result.hr
+            });
+            console.log("Saved new AI questions to Database");
+        } catch (dbErr) {
+            console.log("Could not save to DB (might already exist or missing fields)", dbErr.message);
+        }
 
         res.json(result);
     } catch (err) {

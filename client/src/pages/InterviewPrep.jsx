@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { getInterviewQuestions } from "../services/api" // Imported API service
 
 function InterviewPrep() {
   const navigate = useNavigate()
@@ -24,12 +25,13 @@ function InterviewPrep() {
     setResult(null)
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || "https://job-tracker-qyzl.onrender.com"}/api/ai/interview-prep`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role, jd })
-      })
-      const parsed = await response.json()
+      // Cleaner fetch using api.js
+      const parsed = await getInterviewQuestions(role, jd)
+
+      if (parsed.message) {
+        throw new Error(parsed.message)
+      }
+
       setResult(parsed)
     } catch (err) {
       console.error(err)
@@ -101,6 +103,21 @@ function InterviewPrep() {
 
         {result && (
           <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+
+            {/* Source Badge */}
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <span style={{
+                background: result.source === "database" ? "rgba(16,185,129,0.2)" : "rgba(139,92,246,0.2)",
+                color: result.source === "database" ? "#34d399" : "#a78bfa",
+                padding: "6px 12px",
+                borderRadius: "8px",
+                fontSize: "14px",
+                fontWeight: "600",
+                border: result.source === "database" ? "1px solid rgba(16,185,129,0.3)" : "1px solid rgba(139,92,246,0.3)"
+              }}>
+                {result.source === "database" ? "✓ Curated Questions" : "✨ AI Generated"}
+              </span>
+            </div>
 
             <div style={{ background: "rgba(17,24,39,0.75)", borderRadius: "20px", padding: "28px", border: "1px solid rgba(255,255,255,0.06)" }}>
               <h2 style={{ marginBottom: "20px", color: "#60a5fa" }}>💻 Technical Questions</h2>

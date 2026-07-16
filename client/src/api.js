@@ -93,3 +93,11 @@ export async function getJobById(token, jobId) {
 
     return handleResponse(res)
 }
+export async function getInterviewQuestions(role, jd) {
+    const res = await fetch(`${API_URL}/ai/interview-prep`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role, jd })
+    });
+    return handleResponse(res);
+}
