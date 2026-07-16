@@ -1,9 +1,8 @@
 const express = require("express")
 const router = express.Router()
-const Question = require("../models/Question") // Added the DB Model
+const Question = require("../models/Question") // Make sure you created this file!
 
 router.post("/jd-analyzer", async (req, res) => {
-    // ... [KEEP YOUR EXISTING CODE HERE - NO CHANGES] ...
     try {
         const { skills, jd } = req.body
 
@@ -24,7 +23,6 @@ Respond in this exact JSON format only, no extra text, no markdown:
   "match_percentage": 65
 }
 `
-
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
             headers: {
@@ -50,13 +48,13 @@ Respond in this exact JSON format only, no extra text, no markdown:
 })
 
 router.post("/resume-scorer", async (req, res) => {
-    // ... [KEEP YOUR EXISTING CODE HERE - NO CHANGES] ...
     try {
         const { resume } = req.body
 
         const prompt = `
 You are an expert ATS Resume Analyzer and Senior Technical Recruiter.
 Your task is to objectively evaluate the resume below.
+
 Scoring Rules:
 Contact Information (5 marks)
 Education (10 marks)
@@ -87,7 +85,6 @@ Return ONLY valid JSON.
   "strengths": [], "improvements": [], "missing_sections": [], "summary": ""
 }
 `
-
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
             headers: {
@@ -112,18 +109,18 @@ Return ONLY valid JSON.
     }
 })
 
-// --- UPDATED HYBRID ROUTE ---
+// --- UPDATED HYBRID ROUTE WITH STRICT BOUNCER ---
 router.post("/interview-prep", async (req, res) => {
     try {
         const { role, jd } = req.body
 
-        // 1. Check Database First (Case-insensitive)
+        // 1. Check Database First
         const dbQuestions = await Question.findOne({ role: new RegExp(`^${role}$`, 'i') })
 
         if (dbQuestions) {
             console.log("Serving curated questions from Database")
             return res.json({
-                source: "database", // Flag for frontend
+                source: "database",
                 technical: dbQuestions.technical,
                 behavioral: dbQuestions.behavioral,
                 hr: dbQuestions.hr
@@ -131,15 +128,22 @@ router.post("/interview-prep", async (req, res) => {
         }
 
         console.log("No DB match found. Generating with Groq AI...")
-        // 2. Fallback to Groq AI
+        
+        // 2. Fallback to Groq AI with Strict Validation Prompt
         const prompt = `
 You are an expert technical interviewer at a top tech company.
-Generate interview questions for the following role.
+Your first task is to evaluate if the following input is a legitimate, recognized professional job role.
 
-Role: ${role}
-${jd ? `Job Description: ${jd}` : ""}
+Input Role: ${role}
 
-Respond in this exact JSON format only, no extra text, no markdown:
+STRICT INSTRUCTION:
+If the Input Role is a personal name (like "John" or "Aaditya"), random gibberish, conversational text, or clearly not a real profession, you MUST reject it by responding with this exact JSON and nothing else:
+{
+  "invalid_role": true,
+  "message": "That does not appear to be a valid job role. Please enter a legitimate profession."
+}
+
+If it IS a valid job role, generate interview questions for it using this exact JSON format:
 {
   "technical": [
     {"question": "question text", "tip": "what interviewer looks for"}
@@ -151,6 +155,8 @@ Respond in this exact JSON format only, no extra text, no markdown:
     {"question": "question text", "tip": "what interviewer looks for"}
   ]
 }
+
+${jd ? `Job Description to tailor questions: ${jd}` : ""}
 `
 
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -162,7 +168,7 @@ Respond in this exact JSON format only, no extra text, no markdown:
             body: JSON.stringify({
                 model: "llama-3.3-70b-versatile",
                 messages: [{ role: "user", content: prompt }],
-                temperature: 0.5
+                temperature: 0.3 
             })
         })
 
@@ -175,19 +181,26 @@ Respond in this exact JSON format only, no extra text, no markdown:
         }
 
         const result = JSON.parse(match[0]);
-        result.source = "ai"; // Flag for frontend
 
-        // 3. Optional Bonus: Save AI generated questions to DB for next time
+        // 3. Catch the AI rejection
+        if (result.invalid_role) {
+            console.log("AI rejected invalid role input:", role);
+            return res.status(400).json({ message: result.message });
+        }
+
+        result.source = "ai"; 
+
+        // 4. Save to Database for next time
         try {
             await Question.create({
-                role: role.toLowerCase(), // Normalize role string
+                role: role.toLowerCase().trim(),
                 technical: result.technical,
                 behavioral: result.behavioral,
                 hr: result.hr
             });
             console.log("Saved new AI questions to Database");
         } catch (dbErr) {
-            console.log("Could not save to DB (might already exist or missing fields)", dbErr.message);
+            console.log("Could not save to DB", dbErr.message);
         }
 
         res.json(result);
