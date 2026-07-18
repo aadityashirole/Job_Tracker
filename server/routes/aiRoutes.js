@@ -1,11 +1,10 @@
 const express = require("express")
 const router = express.Router()
-const Question = require("../models/Question") // Make sure you created this file!
+const Question = require("../models/Question")
 
 router.post("/jd-analyzer", async (req, res) => {
     try {
         const { skills, jd } = req.body
-
         const prompt = `
 You are a career advisor. Analyze the gap between a candidate's skills and a job description.
 
@@ -50,7 +49,6 @@ Respond in this exact JSON format only, no extra text, no markdown:
 router.post("/resume-scorer", async (req, res) => {
     try {
         const { resume } = req.body
-
         const prompt = `
 You are an expert ATS Resume Analyzer and Senior Technical Recruiter.
 Your task is to objectively evaluate the resume below.
@@ -132,19 +130,19 @@ router.post("/interview-prep", async (req, res) => {
         // 2. Fallback to Groq AI with Strict Validation Prompt
         const prompt = `
 You are an expert technical interviewer at a top tech company.
-Your first task is to evaluate if the following input is a legitimate, recognized professional job role.
 
-Input Role: ${role}
+First, strictly evaluate the Input Role. 
+Input Role: "${role}"
 
-STRICT INSTRUCTION:
-If the Input Role is a personal name (like "John" or "Aaditya"), random gibberish, conversational text, or clearly not a real profession, you MUST reject it by responding with this exact JSON and nothing else:
+If the Input Role is gibberish (e.g., "asdf"), a random word (e.g., "apple", "hello"), a personal name, or anything that is NOT a widely recognized professional job title, you MUST reject it by returning exactly this JSON:
 {
   "invalid_role": true,
   "message": "That does not appear to be a valid job role. Please enter a legitimate profession."
 }
 
-If it IS a valid job role, generate interview questions for it using this exact JSON format:
+If and ONLY IF it is a legitimate job role, generate interview questions for it using this exact JSON format:
 {
+  "invalid_role": false,
   "technical": [
     {"question": "question text", "tip": "what interviewer looks for"}
   ],
@@ -168,7 +166,7 @@ ${jd ? `Job Description to tailor questions: ${jd}` : ""}
             body: JSON.stringify({
                 model: "llama-3.3-70b-versatile",
                 messages: [{ role: "user", content: prompt }],
-                temperature: 0.3 
+                temperature: 0.1 // Lowered temperature to make it stricter
             })
         })
 
