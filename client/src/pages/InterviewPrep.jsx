@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { getInterviewQuestions } from "../services/api.js" // Imported API service
+import { getInterviewQuestions } from "../api.js"; // Imported API service
 
 function InterviewPrep() {
   const navigate = useNavigate()
