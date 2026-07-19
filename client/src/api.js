@@ -101,3 +101,28 @@ export async function getInterviewQuestions(role, jd) {
     });
     return handleResponse(res);
 }
+// 👇 PASTE THIS AT THE BOTTOM OF api.js 👇
+
+export const generateCoverLetter = async (skills, jd, roleTitle) => {
+    try {
+        // Notice this matches your live Render URL!
+        const response = await fetch("https://job-tracker-qyzl.onrender.com/api/ai/generate-cover-letter", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ skills, jd, roleTitle })
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to generate cover letter");
+        }
+
+        const data = await response.json();
+        return data; // This returns the letter back to your React component
+
+    } catch (error) {
+        console.error("Error generating cover letter:", error);
+        return { message: error.message };
+    }
+};

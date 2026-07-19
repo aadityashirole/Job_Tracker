@@ -126,7 +126,7 @@ router.post("/interview-prep", async (req, res) => {
         }
 
         console.log("No DB match found. Generating with Groq AI...")
-        
+
         // 2. Fallback to Groq AI with Strict Validation Prompt
         const prompt = `
 You are an expert technical interviewer at a top tech company.
@@ -186,7 +186,7 @@ ${jd ? `Job Description to tailor questions: ${jd}` : ""}
             return res.status(400).json({ message: result.message });
         }
 
-        result.source = "ai"; 
+        result.source = "ai";
 
         // 4. Save to Database for next time
         try {
@@ -206,5 +206,38 @@ ${jd ? `Job Description to tailor questions: ${jd}` : ""}
         res.status(500).json({ message: "AI request failed", error: err.message })
     }
 })
+router.post("/generate-cover-letter", async (req, res) => {
+    try {
+        const { skills, jd, roleTitle } = req.body;
+
+        const prompt = `
+            You are an expert career coach. Write a tailored cover letter for the role: ${roleTitle}.
+            
+            Candidate Skills: ${skills}
+            Job Description: ${jd}
+
+            Write a professional, concise cover letter (max 250 words). 
+            Do not use placeholders. Write it as if the user is sending it directly.
+        `;
+
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "llama-3.3-70b-versatile",
+                messages: [{ role: "user", content: prompt }],
+                temperature: 0.5
+            })
+        });
+
+        const data = await response.json();
+        res.json({ coverLetter: data.choices[0].message.content });
+    } catch (err) {
+        res.status(500).json({ message: "AI request failed", error: err.message });
+    }
+});
 
 module.exports = router

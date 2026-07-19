@@ -9,6 +9,7 @@ import JDAnalyzer from "./pages/JDAnalyzer"
 import ResumeScorer from "./pages/ResumeScorer"
 import InterviewPrep from "./pages/InterviewPrep"
 import EditJobs from "./pages/EditJobs"
+import CoverLetterGenerator from "./pages/CoverLetterGenerator";
 
 function App() {
   const [token, setToken] = useState(null)
@@ -34,6 +35,7 @@ function App() {
         <Route path="/resume-scorer" element={token ? <ResumeScorer /> : <Navigate to="/login" />} />
         <Route path="/interview-prep" element={token ? <InterviewPrep /> : <Navigate to="/login" />} />
         <Route path="/edit-job/:id" element={<EditJobs />} />
+        <Route path="/cover-letter" element={<CoverLetterGenerator />} />
       </Routes>
     </BrowserRouter>
   )
