@@ -30,16 +30,13 @@ function scrapeJobDetails() {
         if (url.includes('linkedin.com')) {
             // 1. Hunt for the Job Title (Tries multiple methods)
             // 1. Hunt for the Job Title (Aggressive Selectors)
+            // Replace your roleSelectors array with this:
             const roleSelectors = [
-                'h2.job-details-jobs-unified-top-card__job-title', // Very common in the split-pane view
                 '.job-details-jobs-unified-top-card__job-title h1',
-                '.job-details-jobs-unified-top-card__job-title a',
-                '.job-details-jobs-unified-top-card__job-title', // The container itself
-                '.jobs-details-top-card__job-title',
-                '.job-details-jobs-unified-top-card h2', // Fallback: any h2 in the top card
-                '.job-details-jobs-unified-top-card h1', // Fallback: any h1 in the top card
-                'h1.t-24',
-                'h2.t-24'
+                '.job-details-jobs-unified-top-card__job-title',
+                // This targets an <a> tag specifically inside the top job card area
+                '.job-details-jobs-unified-top-card__container a[href*="/jobs/view/"]',
+                'h1' // The "nuclear option" - grab any h1 inside the top job card area
             ];
 
             for (let selector of roleSelectors) {
