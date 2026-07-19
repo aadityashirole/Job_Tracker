@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Job Tracker Quick Add",
+  "version": "1.0",
+  "description": "Quickly save job postings to your Job Tracker.",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}
