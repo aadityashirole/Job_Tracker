@@ -424,6 +424,23 @@ function Dashboard() {
           >
             🎯 Interview Prep
           </button>
+
+          {/* NEW AI COVER LETTER BUTTON */}
+          <button
+            onClick={() => navigate("/cover-letter")}
+            style={{
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              color: "#F8FAFC",
+              padding: "14px 22px",
+              borderRadius: "12px",
+              fontWeight: "600",
+              cursor: "pointer"
+            }}
+          >
+            📝 AI Cover Letter
+          </button>
+
           <CSVLink
             data={csvData}
             filename={"job-applications.csv"}
