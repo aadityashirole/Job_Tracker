@@ -28,53 +28,25 @@ function scrapeJobDetails() {
 
     try {
         if (url.includes('linkedin.com')) {
-            // 1. Hunt for the Job Title (Tries multiple methods)
-            // 1. Hunt for the Job Title (Aggressive Selectors)
-            // Replace your roleSelectors array with this:
-            const roleSelectors = [
-                '.job-details-jobs-unified-top-card__job-title h1',
-                '.job-details-jobs-unified-top-card__job-title',
-                // This targets an <a> tag specifically inside the top job card area
-                '.job-details-jobs-unified-top-card__container a[href*="/jobs/view/"]',
-                'h1' // The "nuclear option" - grab any h1 inside the top job card area
-            ];
-
-            for (let selector of roleSelectors) {
-                const el = document.querySelector(selector);
-                if (el && el.innerText) {
-                    role = el.innerText.trim();
-                    break; // Stop looking once we find it
-                }
-            }
-
-            // 2. Hunt for the Company Name (Tries multiple methods)
-            // We lock the search to the top card so it doesn't accidentally grab a random company from the sidebar
+            // 1. Get Company (Your current logic is working, keep it)
             const topCard = document.querySelector('.job-details-jobs-unified-top-card') || document;
-            const compSelectors = [
-                '.job-details-jobs-unified-top-card__company-name a',
-                '.job-details-jobs-unified-top-card__primary-description-container a',
-                '.jobs-details-top-card__company-url',
-                'a[href*="/company/"]'
-            ];
-
+            const compSelectors = ['.job-details-jobs-unified-top-card__company-name a', 'a[href*="/company/"]'];
             for (let selector of compSelectors) {
                 const el = topCard.querySelector(selector);
-                if (el && el.innerText) {
-                    // Make sure it doesn't just grab the word "LinkedIn"
-                    if (el.innerText.trim().toLowerCase() !== "linkedin") {
-                        company = el.innerText.trim();
-                        break;
-                    }
+                if (el && el.innerText && el.innerText.trim().toLowerCase() !== "linkedin") {
+                    company = el.innerText.trim();
+                    break;
                 }
             }
-        }
-        else if (url.includes('naukri.com')) {
-            // Naukri logic remains the same
-            const titleElement = document.querySelector('h1.styles_jd-header-title__rD36r, .jd-header-title, h1');
-            if (titleElement) role = titleElement.innerText.trim();
 
-            const companyElement = document.querySelector('.jd-header-comp-name a, .styles_jd-header-comp-name__MawbY, .jd-header-company-name, a[href*="company"]');
-            if (companyElement) company = companyElement.innerText.trim();
+            // 2. Get Job Title (XPath - The "Impossible to Break" Method)
+            // This searches for an H2 or H1 that contains the job title text
+            const titleXPath = "//h1 | //h2[contains(@class, 'title')] | //div[contains(@class, 'title')]";
+            const result = document.evaluate(titleXPath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+
+            if (result.singleNodeValue) {
+                role = result.singleNodeValue.innerText.trim();
+            }
         }
     } catch (err) {
         console.error("Scraping error:", err);
