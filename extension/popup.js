@@ -43,16 +43,15 @@ function scrapeJobDetails() {
                 }
             }
 
-            // 2. Get Job Title (Expanded search for LinkedIn split-pane)
+            // 2. Get Job Title (Targeting the main job view heading directly)
             const roleSelectors = [
                 '.job-details-jobs-unified-top-card__job-title h1',
-                '.job-details-jobs-unified-top-card__job-title',
-                'h2.t-24.t-bold',
-                '.jobs-details-top-card__job-title',
+                '.job-details-jobs-unified-top-card__job-title span',
                 'h1.t-24',
-                // Fallback: look for any main heading inside the job details card header
-                '.job-details-jobs-unified-top-card h1',
-                '.job-details-jobs-unified-top-card h2'
+                // This targets the main prominent title element directly in the split-pane view
+                '.jobs-unified-top-card__job-title',
+                'h2.t-24',
+                '.job-view-layout h1'
             ];
 
             for (let selector of roleSelectors) {
