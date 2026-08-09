@@ -187,7 +187,7 @@ function Dashboard() {
             JT
           </div>
           <div>
-            <h2 style={{ fontSize: "18px", margin: 0 }}>Job Tracker</h2>
+            <h2 style={{ fontSize: "18px", margin: 0 }}>CareerForge AI</h2>
             <p style={{ margin: 0, fontSize: "12px", color: "#94A3B8" }}>AI Career Workspace</p>
           </div>
         </div>

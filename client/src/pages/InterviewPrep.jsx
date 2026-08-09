@@ -50,7 +50,7 @@ function InterviewPrep() {
             JT
           </div>
           <div>
-            <div style={{ fontWeight: "700", fontSize: "18px" }}>Job Tracker</div>
+            <div style={{ fontWeight: "700", fontSize: "18px" }}>CareerForge AI</div>
             <div style={{ fontSize: "12px", color: "#94a3b8" }}>AI Interview Assistant</div>
           </div>
         </div>

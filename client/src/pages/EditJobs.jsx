@@ -105,7 +105,7 @@ function EditJobs() {
                             fontWeight: "700"
                         }}
                     >
-                        Job Tracker
+                        CareerForge AI
                     </span>
                 </div>
 

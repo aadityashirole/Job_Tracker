@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Job Tracker Quick Add",
+  "name": "CareerForge AI Quick Add",
   "version": "1.0",
   "permissions": ["activeTab", "scripting"],
   "host_permissions": ["https://*.linkedin.com/*", "https://*.naukri.com/*"],

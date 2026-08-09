@@ -18,7 +18,7 @@ function Landing() {
             <div style={{ width: "40px", height: "40px", borderRadius: "12px", background: "linear-gradient(135deg,#10b981,#3b82f6)", color: "white", display: "flex", justifyContent: "center", alignItems: "center", fontWeight: "bold" }}>
               JT
             </div>
-            <span style={{ fontSize: "20px", fontWeight: "700" }}>Job Tracker</span>
+            <span style={{ fontSize: "20px", fontWeight: "700" }}>CareerForge AI</span>
           </div>
           <button onClick={() => navigate("/login")} style={{ background: "linear-gradient(135deg,#10b981,#3b82f6)", color: "white", border: "none", padding: "12px 24px", borderRadius: "10px", cursor: "pointer", fontWeight: "600" }}>
             Sign In

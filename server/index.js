@@ -22,7 +22,7 @@ app.use("/api/jobs", jobRoutes)
 app.use("/api/ai", aiRoutes)
 
 app.get("/", (req, res) => {
-  res.send("Job Tracker API is running")
+  res.send("CareerForge AI API is running")
 })
 
 const PORT = process.env.PORT || 5000

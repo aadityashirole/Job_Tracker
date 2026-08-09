@@ -1,4 +1,4 @@
-# 🎯 Job Tracker — AI-Powered Career Assistant
+# 🎯 CareerForge AI — AI-Powered Career Assistant
 
 A full-stack job application tracker that helps students and job seekers organize their applications, identify skill gaps, improve their resumes, and prepare for interviews — all powered by AI.
 
@@ -12,7 +12,7 @@ A full-stack job application tracker that helps students and job seekers organiz
 
 ## 📖 About
 
-During placement season, students apply to dozens of companies with no organized way to track applications, no way to know if they're actually qualified for a role, and no easy way to prepare for interviews. **Job Tracker** solves this by combining application tracking with AI-powered career tools — all in one free platform.
+During placement season, students apply to dozens of companies with no organized way to track applications, no way to know if they're actually qualified for a role, and no easy way to prepare for interviews. **CareerForge AI** solves this by combining application tracking with AI-powered career tools — all in one free platform.
 
 ---
 

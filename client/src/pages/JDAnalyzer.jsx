@@ -79,7 +79,7 @@ function JDAnalyzer() {
           >
             JT
           </div>
-          <span style={{ fontSize: "20px", fontWeight: "700" }}>Job Tracker</span>
+          <span style={{ fontSize: "20px", fontWeight: "700" }}>CareerForge AI</span>
         </div>
 
         <button
