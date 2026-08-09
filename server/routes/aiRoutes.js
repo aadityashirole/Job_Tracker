@@ -206,6 +206,7 @@ ${jd ? `Job Description to tailor questions: ${jd}` : ""}
         res.status(500).json({ message: "AI request failed", error: err.message })
     }
 })
+
 router.post("/generate-cover-letter", async (req, res) => {
     try {
         const { skills, jd, roleTitle } = req.body;
@@ -239,8 +240,9 @@ router.post("/generate-cover-letter", async (req, res) => {
         res.status(500).json({ message: "AI request failed", error: err.message });
     }
 });
-// One-Click Resume Tailor Endpoint
-app.post('/api/ai/tailor-resume', async (req, res) => {
+
+// One-Click Resume Tailor Endpoint (Updated with correct fetch syntax)
+router.post('/tailor-resume', async (req, res) => {
     try {
         const { currentSkills, jobDescription, roleTitle, companyName } = req.body;
 
@@ -257,15 +259,29 @@ app.post('/api/ai/tailor-resume', async (req, res) => {
         
         Format your response cleanly with bullet points.`;
 
-        const completion = await groq.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
-            messages: [{ role: "user", content: prompt }],
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "llama-3.3-70b-versatile",
+                messages: [{ role: "user", content: prompt }],
+                temperature: 0.3
+            })
         });
 
-        res.json({ tailoredBullets: completion.choices[0].message.content });
+        const data = await response.json();
+
+        if (!data.choices || !data.choices[0]) {
+            throw new Error("Invalid response from Groq API");
+        }
+
+        res.json({ tailoredBullets: data.choices[0].message.content });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: "Failed to tailor resume" });
+        res.status(500).json({ error: "Failed to tailor resume", details: err.message });
     }
 });
 
