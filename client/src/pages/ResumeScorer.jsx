@@ -1,5 +1,9 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf"
+
+// Set worker source for PDF parsing
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
 
 function ResumeScorer() {
   const navigate = useNavigate()
@@ -8,14 +12,50 @@ function ResumeScorer() {
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [parsingPdf, setParsingPdf] = useState(false)
+
+  // Handle PDF file upload and text extraction
+  async function handleFileUpload(e) {
+    const file = e.target.files[0]
+    if (!file) return
+
+    if (file.type !== "application/pdf") {
+      setError("Please upload a valid PDF file.")
+      return
+    }
+
+    setParsingPdf(true)
+    setError("")
+
+    try {
+      const arrayBuffer = await file.arrayBuffer()
+      const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer })
+      const pdf = await loadingTask.promise
+      let extractedText = ""
+
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i)
+        const textContent = await page.getTextContent()
+        const pageText = textContent.items.map((item) => item.str).join(" ")
+        extractedText += pageText + "\n"
+      }
+
+      setResume(extractedText)
+    } catch (err) {
+      console.error(err)
+      setError("Failed to parse PDF file. Please try pasting the text manually.")
+    } finally {
+      setParsingPdf(false)
+    }
+  }
 
   async function analyzeResume() {
     if (!resume.trim()) {
-      setError("Please paste your resume")
+      setError("Please paste or upload your resume")
       return
     }
     if (resume.trim().length < 100) {
-      setError("Please paste your complete resume (at least 100 characters)")
+      setError("Please provide your complete resume (at least 100 characters)")
       return
     }
 
@@ -50,400 +90,270 @@ function ResumeScorer() {
     } finally {
       setLoading(false);
     }
-    console.error(err)
-    setError("Something went wrong. Try again.")
   }
 
-  
-
-
-return (
-  <div
-    style={{
-      minHeight: "100vh",
-      background:
-        "linear-gradient(to bottom, #07111f, #0b1220, #111827)",
-      color: "white"
-    }}
-  >
-    {/* NAVBAR */}
-    <nav
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: "20px 40px",
-        borderBottom: "1px solid rgba(255,255,255,0.06)"
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "12px"
-        }}
-      >
-        <div
-          style={{
-            width: "40px",
-            height: "40px",
-            borderRadius: "12px",
-            background:
-              "linear-gradient(135deg,#10b981,#3b82f6)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontWeight: "700"
-          }}
-        >
-          JT
-        </div>
-
-        <span
-          style={{
-            fontSize: "20px",
-            fontWeight: "700"
-          }}
-        >
-          Job Tracker
-        </span>
-      </div>
-
-      <button
-        onClick={() => navigate("/dashboard")}
-        style={{
-          background: "rgba(255,255,255,0.05)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          color: "white",
-          padding: "10px 18px",
-          borderRadius: "12px",
-          cursor: "pointer"
-        }}
-      >
-        ← Dashboard
-      </button>
-    </nav>
-
-    {/* PAGE */}
+  return (
     <div
       style={{
-        maxWidth: "1100px",
-        margin: "50px auto",
-        padding: "0 20px"
+        minHeight: "100vh",
+        background:
+          "linear-gradient(to bottom, #07111f, #0b1220, #111827)",
+        color: "white"
       }}
     >
-      {/* HEADER */}
-      <div style={{ marginBottom: "40px" }}>
-        <div
-          style={{
-            display: "inline-block",
-            padding: "8px 16px",
-            borderRadius: "999px",
-            background: "rgba(124,58,237,0.15)",
-            color: "#a78bfa",
-            border: "1px solid rgba(124,58,237,0.2)",
-            fontSize: "13px",
-            marginBottom: "16px"
-          }}
-        >
-          AI Resume Analysis
-        </div>
-
-        <h1
-          style={{
-            fontSize: "42px",
-            fontWeight: "700",
-            marginBottom: "12px"
-          }}
-        >
-          Resume Scorer
-        </h1>
-
-        <p
-          style={{
-            color: "#94a3b8",
-            fontSize: "16px"
-          }}
-        >
-          Get an AI-powered score and actionable suggestions to
-          improve your resume.
-        </p>
-      </div>
-
-      {/* ERROR */}
-      {error && (
-        <div
-          style={{
-            background: "rgba(239,68,68,0.12)",
-            border: "1px solid rgba(239,68,68,0.3)",
-            color: "#f87171",
-            padding: "14px",
-            borderRadius: "14px",
-            marginBottom: "20px"
-          }}
-        >
-          {error}
-        </div>
-      )}
-
-      {/* INPUT CARD */}
-      <div
+      {/* NAVBAR */}
+      <nav
         style={{
-          background: "rgba(17,24,39,0.75)",
-          backdropFilter: "blur(18px)",
-          border: "1px solid rgba(255,255,255,0.06)",
-          borderRadius: "24px",
-          padding: "28px",
-          marginBottom: "30px"
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "20px 40px",
+          borderBottom: "1px solid rgba(255,255,255,0.06)"
         }}
       >
-        <label
+        <div
           style={{
-            display: "block",
-            marginBottom: "12px",
-            color: "#cbd5e1",
-            fontSize: "14px"
+            display: "flex",
+            alignItems: "center",
+            gap: "12px"
           }}
         >
-          Paste Resume Content
-        </label>
+          <div
+            style={{
+              width: "40px",
+              height: "40px",
+              borderRadius: "12px",
+              background:
+                "linear-gradient(135deg,#10b981,#3b82f6)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontWeight: "700"
+            }}
+          >
+            JT
+          </div>
 
-        <textarea
-          value={resume}
-          onChange={(e) => setResume(e.target.value)}
-          placeholder="Paste your complete resume here..."
-          rows={12}
-          style={{
-            width: "100%",
-            background: "#0f172a",
-            border: "1px solid #334155",
-            color: "white",
-            padding: "14px",
-            borderRadius: "14px",
-            resize: "vertical",
-            outline: "none",
-            boxSizing: "border-box"
-          }}
-        />
+          <span
+            style={{
+              fontSize: "20px",
+              fontWeight: "700"
+            }}
+          >
+            Job Tracker
+          </span>
+        </div>
 
         <button
-          onClick={analyzeResume}
-          disabled={loading}
+          onClick={() => navigate("/dashboard")}
           style={{
-            marginTop: "24px",
-            background:
-              "linear-gradient(135deg,#7c3aed,#3b82f6)",
+            background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(255,255,255,0.08)",
             color: "white",
-            border: "none",
-            padding: "14px 30px",
-            borderRadius: "14px",
-            fontWeight: "600",
-            cursor: "pointer",
-            fontSize: "15px"
+            padding: "10px 18px",
+            borderRadius: "12px",
+            cursor: "pointer"
           }}
         >
-          {loading ? "Analyzing..." : "Score My Resume"}
+          ← Dashboard
         </button>
-      </div>
+      </nav>
 
-      {/* RESULT */}
-      {result && (
-        <>
-          {/* SCORE CARD */}
+      {/* PAGE */}
+      <div
+        style={{
+          maxWidth: "1100px",
+          margin: "50px auto",
+          padding: "0 20px"
+        }}
+      >
+        {/* HEADER */}
+        <div style={{ marginBottom: "40px" }}>
           <div
             style={{
-              background: "rgba(17,24,39,0.75)",
-              border: "1px solid rgba(255,255,255,0.06)",
-              borderRadius: "24px",
-              padding: "32px",
-              textAlign: "center",
-              marginBottom: "24px"
+              display: "inline-block",
+              padding: "8px 16px",
+              borderRadius: "999px",
+              background: "rgba(124,58,237,0.15)",
+              color: "#a78bfa",
+              border: "1px solid rgba(124,58,237,0.2)",
+              fontSize: "13px",
+              marginBottom: "16px"
             }}
           >
-            <p
-              style={{
-                color: "#94a3b8",
-                marginBottom: "10px"
-              }}
-            >
-              Overall Resume Score
-            </p>
-
-            <h2
-              style={{
-                fontSize: "72px",
-                fontWeight: "700",
-                color:
-                  result.overall_score >= 70
-                    ? "#22c55e"
-                    : result.overall_score >= 50
-                      ? "#f59e0b"
-                      : "#ef4444"
-              }}
-            >
-              {result.overall_score}
-            </h2>
-
-            <p
-              style={{
-                color: "#64748b"
-              }}
-            >
-              out of 100
-            </p>
+            AI Resume Analysis
           </div>
 
-          {/* SECTION BREAKDOWN */}
-          <div
+          <h1
             style={{
-              background: "rgba(17,24,39,0.75)",
-              border: "1px solid rgba(255,255,255,0.06)",
-              borderRadius: "24px",
-              padding: "24px",
-              marginBottom: "24px"
+              fontSize: "42px",
+              fontWeight: "700",
+              marginBottom: "12px"
             }}
           >
-            <h3
+            Resume Scorer
+          </h1>
+
+          <p
+            style={{
+              color: "#94a3b8",
+              fontSize: "16px"
+            }}
+          >
+            Upload your PDF resume or paste content to get an AI-powered score and actionable suggestions.
+          </p>
+        </div>
+
+        {/* ERROR */}
+        {error && (
+          <div
+            style={{
+              background: "rgba(239,68,68,0.12)",
+              border: "1px solid rgba(239,68,68,0.3)",
+              color: "#f87171",
+              padding: "14px",
+              borderRadius: "14px",
+              marginBottom: "20px"
+            }}
+          >
+            {error}
+          </div>
+        )}
+
+        {/* INPUT CARD */}
+        <div
+          style={{
+            background: "rgba(17,24,39,0.75)",
+            backdropFilter: "blur(18px)",
+            border: "1px solid rgba(255,255,255,0.06)",
+            borderRadius: "24px",
+            padding: "28px",
+            marginBottom: "30px"
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", flexWrap: "wrap", gap: "10px" }}>
+            <label
               style={{
-                marginBottom: "20px",
-                fontSize: "18px"
+                color: "#cbd5e1",
+                fontSize: "14px",
+                fontWeight: "600"
               }}
             >
-              Section Breakdown
-            </h3>
+              Upload PDF Resume or Paste Content
+            </label>
 
-            {Object.entries(result.sections || {}).map(([key, value]) => (
-              <div key={key} style={{ marginBottom: "16px" }}>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginBottom: "8px"
-                  }}
-                >
-                  <span
-                    style={{
-                      color: "#cbd5e1",
-                      textTransform: "capitalize"
-                    }}
-                  >
-                    {key}
-                  </span>
-
-                  <span
-                    style={{
-                      fontWeight: "600"
-                    }}
-                  >
-                    {value}
-                  </span>
-                </div>
-
-                <div
-                  style={{
-                    background: "#1e293b",
-                    height: "10px",
-                    borderRadius: "999px",
-                    overflow: "hidden"
-                  }}
-                >
-                  <div
-                    style={{
-                      width: `${key === "contact"
-                        ? (value / 5) * 100
-                        : key === "education"
-                          ? (value / 10) * 100
-                          : key === "ats"
-                            ? (value / 15) * 100
-                            : key === "grammar"
-                              ? (value / 10) * 100
-                              : (value / 20) * 100
-                        }%`,
-                      height: "100%",
-                      background:
-                        value >= 70
-                          ? "#22c55e"
-                          : value >= 50
-                            ? "#f59e0b"
-                            : "#ef4444",
-                      transition: "0.5s"
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
+            {/* PDF UPLOAD BUTTON */}
+            <label
+              style={{
+                background: "rgba(59, 130, 246, 0.15)",
+                border: "1px solid rgba(59, 130, 246, 0.3)",
+                color: "#60a5fa",
+                padding: "8px 16px",
+                borderRadius: "10px",
+                fontSize: "13px",
+                fontWeight: "600",
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px"
+              }}
+            >
+              📁 {parsingPdf ? "Parsing PDF..." : "Upload PDF Resume"}
+              <input
+                type="file"
+                accept=".pdf"
+                onChange={handleFileUpload}
+                style={{ display: "none" }}
+              />
+            </label>
           </div>
 
-          {/* STRENGTHS + IMPROVEMENTS */}
-          <div
+          <textarea
+            value={resume}
+            onChange={(e) => setResume(e.target.value)}
+            placeholder="Upload a PDF above or paste your complete resume text here..."
+            rows={12}
             style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "24px",
-              marginBottom: "24px"
+              width: "100%",
+              background: "#0f172a",
+              border: "1px solid #334155",
+              color: "white",
+              padding: "14px",
+              borderRadius: "14px",
+              resize: "vertical",
+              outline: "none",
+              boxSizing: "border-box"
+            }}
+          />
+
+          <button
+            onClick={analyzeResume}
+            disabled={loading || parsingPdf}
+            style={{
+              marginTop: "24px",
+              background:
+                "linear-gradient(135deg,#7c3aed,#3b82f6)",
+              color: "white",
+              border: "none",
+              padding: "14px 30px",
+              borderRadius: "14px",
+              fontWeight: "600",
+              cursor: "pointer",
+              fontSize: "15px"
             }}
           >
+            {loading ? "Analyzing..." : "Score My Resume"}
+          </button>
+        </div>
+
+        {/* RESULT */}
+        {result && (
+          <>
+            {/* SCORE CARD */}
             <div
               style={{
                 background: "rgba(17,24,39,0.75)",
                 border: "1px solid rgba(255,255,255,0.06)",
                 borderRadius: "24px",
-                padding: "24px"
+                padding: "32px",
+                textAlign: "center",
+                marginBottom: "24px"
               }}
             >
-              <h3
+              <p
                 style={{
-                  color: "#22c55e",
-                  marginBottom: "16px"
+                  color: "#94a3b8",
+                  marginBottom: "10px"
                 }}
               >
-                ✅ Strengths
-              </h3>
+                Overall Resume Score
+              </p>
 
-              {result.strengths.map((item, index) => (
-                <p
-                  key={index}
-                  style={{
-                    marginBottom: "12px",
-                    color: "#cbd5e1",
-                    lineHeight: "1.6"
-                  }}
-                >
-                  • {item}
-                </p>
-              ))}
-            </div>
-
-            <div
-              style={{
-                background: "rgba(17,24,39,0.75)",
-                border: "1px solid rgba(255,255,255,0.06)",
-                borderRadius: "24px",
-                padding: "24px"
-              }}
-            >
-              <h3
+              <h2
                 style={{
-                  color: "#ef4444",
-                  marginBottom: "16px"
+                  fontSize: "72px",
+                  fontWeight: "700",
+                  color:
+                    result.overall_score >= 70
+                      ? "#22c55e"
+                      : result.overall_score >= 50
+                        ? "#f59e0b"
+                        : "#ef4444"
                 }}
               >
-                ⚠️ Improvements
-              </h3>
+                {result.overall_score}
+              </h2>
 
-              {result.improvements.map((item, index) => (
-                <p
-                  key={index}
-                  style={{
-                    marginBottom: "12px",
-                    color: "#cbd5e1",
-                    lineHeight: "1.6"
-                  }}
-                >
-                  • {item}
-                </p>
-              ))}
+              <p
+                style={{
+                  color: "#64748b"
+                }}
+              >
+                out of 100
+              </p>
             </div>
+
+            {/* SECTION BREAKDOWN */}
             <div
               style={{
                 background: "rgba(17,24,39,0.75)",
@@ -453,63 +363,213 @@ return (
                 marginBottom: "24px"
               }}
             >
-              <h3 style={{ color: "#f59e0b", marginBottom: "16px" }}>
-                📌 Missing Sections
+              <h3
+                style={{
+                  marginBottom: "20px",
+                  fontSize: "18px"
+                }}
+              >
+                Section Breakdown
               </h3>
 
-              {result.missing_sections.length === 0 ? (
-                <p style={{ color: "#22c55e" }}>
-                  No important sections are missing.
-                </p>
-              ) : (
-                result.missing_sections.map((item, index) => (
+              {Object.entries(result.sections || {}).map(([key, value]) => (
+                <div key={key} style={{ marginBottom: "16px" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      marginBottom: "8px"
+                    }}
+                  >
+                    <span
+                      style={{
+                        color: "#cbd5e1",
+                        textTransform: "capitalize"
+                      }}
+                    >
+                      {key}
+                    </span>
+
+                    <span
+                      style={{
+                        fontWeight: "600"
+                      }}
+                    >
+                      {value}
+                    </span>
+                  </div>
+
+                  <div
+                    style={{
+                      background: "#1e293b",
+                      height: "10px",
+                      borderRadius: "999px",
+                      overflow: "hidden"
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: `${key === "contact"
+                          ? (value / 5) * 100
+                          : key === "education"
+                            ? (value / 10) * 100
+                            : key === "ats"
+                              ? (value / 15) * 100
+                              : key === "grammar"
+                                ? (value / 10) * 100
+                                : (value / 20) * 100
+                          }%`,
+                        height: "100%",
+                        background:
+                          value >= 70
+                            ? "#22c55e"
+                            : value >= 50
+                              ? "#f59e0b"
+                              : "#ef4444",
+                        transition: "0.5s"
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* STRENGTHS + IMPROVEMENTS */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "24px",
+                marginBottom: "24px"
+              }}
+            >
+              <div
+                style={{
+                  background: "rgba(17,24,39,0.75)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  borderRadius: "24px",
+                  padding: "24px"
+                }}
+              >
+                <h3
+                  style={{
+                    color: "#22c55e",
+                    marginBottom: "16px"
+                  }}
+                >
+                  ✅ Strengths
+                </h3>
+
+                {result.strengths.map((item, index) => (
                   <p
                     key={index}
                     style={{
+                      marginBottom: "12px",
                       color: "#cbd5e1",
-                      marginBottom: "10px"
+                      lineHeight: "1.6"
                     }}
                   >
                     • {item}
                   </p>
-                ))
-              )}
+                ))}
+              </div>
+
+              <div
+                style={{
+                  background: "rgba(17,24,39,0.75)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  borderRadius: "24px",
+                  padding: "24px"
+                }}
+              >
+                <h3
+                  style={{
+                    color: "#ef4444",
+                    marginBottom: "16px"
+                  }}
+                >
+                  ⚠️ Improvements
+                </h3>
+
+                {result.improvements.map((item, index) => (
+                  <p
+                    key={index}
+                    style={{
+                      marginBottom: "12px",
+                      color: "#cbd5e1",
+                      lineHeight: "1.6"
+                    }}
+                  >
+                    • {item}
+                  </p>
+                ))}
+              </div>
+
+              <div
+                style={{
+                  background: "rgba(17,24,39,0.75)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  borderRadius: "24px",
+                  padding: "24px",
+                  marginBottom: "24px"
+                }}
+              >
+                <h3 style={{ color: "#f59e0b", marginBottom: "16px" }}>
+                  📌 Missing Sections
+                </h3>
+
+                {result.missing_sections.length === 0 ? (
+                  <p style={{ color: "#22c55e" }}>
+                    No important sections are missing.
+                  </p>
+                ) : (
+                  result.missing_sections.map((item, index) => (
+                    <p
+                      key={index}
+                      style={{
+                        color: "#cbd5e1",
+                        marginBottom: "10px"
+                      }}
+                    >
+                      • {item}
+                    </p>
+                  ))
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* SUMMARY */}
-          <div
-            style={{
-              background: "rgba(17,24,39,0.75)",
-              border: "1px solid rgba(255,255,255,0.06)",
-              borderRadius: "24px",
-              padding: "28px"
-            }}
-          >
-            <h3
+            {/* SUMMARY */}
+            <div
               style={{
-                color: "#a78bfa",
-                marginBottom: "14px"
+                background: "rgba(17,24,39,0.75)",
+                border: "1px solid rgba(255,255,255,0.06)",
+                borderRadius: "24px",
+                padding: "28px"
               }}
             >
-              💡 AI Summary
-            </h3>
+              <h3
+                style={{
+                  color: "#a78bfa",
+                  marginBottom: "14px"
+                }}
+              >
+                💡 AI Summary
+              </h3>
 
-            <p
-              style={{
-                color: "#cbd5e1",
-                lineHeight: "1.8"
-              }}
-            >
-              {result.summary}
-            </p>
-          </div>
-        </>
-      )}
+              <p
+                style={{
+                  color: "#cbd5e1",
+                  lineHeight: "1.8"
+                }}
+              >
+                {result.summary}
+              </p>
+            </div>
+          </>
+        )}
+      </div>
     </div>
-  </div>
-)
-
+  )
 }
 
 export default ResumeScorer
