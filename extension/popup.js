@@ -28,7 +28,7 @@ function scrapeJobDetails() {
 
     try {
         if (url.includes('linkedin.com')) {
-            // 1. Get Company (which we know is working)
+            // 1. Get Company (Working perfectly)
             const topCard = document.querySelector('.job-details-jobs-unified-top-card') || document;
             const compSelectors = [
                 '.job-details-jobs-unified-top-card__company-name a',
@@ -43,30 +43,19 @@ function scrapeJobDetails() {
                 }
             }
 
-            // 2. Get Job Title (Targeting the main job view heading directly)
-            const roleSelectors = [
-                '.job-details-jobs-unified-top-card__job-title h1',
-                '.job-details-jobs-unified-top-card__job-title span',
-                'h1.t-24',
-                // This targets the main prominent title element directly in the split-pane view
-                '.jobs-unified-top-card__job-title',
-                'h2.t-24',
-                '.job-view-layout h1'
-            ];
-
-            for (let selector of roleSelectors) {
-                const el = document.querySelector(selector);
-                if (el && el.innerText) {
-                    role = el.innerText.trim();
-                    break;
-                }
+            // 2. Get Job Title (Direct H1 tag hunter in the job pane)
+            // On LinkedIn split-pane, the main job title is always the first prominent <h1> in the details pane
+            const jobPane = document.querySelector('.job-view-layout') || document;
+            const h1Element = jobPane.querySelector('h1');
+            if (h1Element && h1Element.innerText) {
+                role = h1Element.innerText.trim();
             }
         }
         else if (url.includes('naukri.com')) {
-            const titleElement = document.querySelector('h1.styles_jd-header-title__rD36r, .jd-header-title, h1');
+            const titleElement = document.querySelector('h1');
             if (titleElement) role = titleElement.innerText.trim();
 
-            const companyElement = document.querySelector('.jd-header-comp-name a, .styles_jd-header-comp-name__MawbY, .jd-header-company-name, a[href*="company"]');
+            const companyElement = document.querySelector('.jd-header-comp-name a, .styles_jd-header-comp-name__MawbY');
             if (companyElement) company = companyElement.innerText.trim();
         }
     } catch (err) {
