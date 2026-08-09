@@ -28,9 +28,13 @@ function scrapeJobDetails() {
 
     try {
         if (url.includes('linkedin.com')) {
-            // 1. Get Company (Your current logic is working, keep it)
+            // 1. Get Company (which we know is working)
             const topCard = document.querySelector('.job-details-jobs-unified-top-card') || document;
-            const compSelectors = ['.job-details-jobs-unified-top-card__company-name a', 'a[href*="/company/"]'];
+            const compSelectors = [
+                '.job-details-jobs-unified-top-card__company-name a',
+                '.job-details-jobs-unified-top-card__primary-description-container a',
+                'a[href*="/company/"]'
+            ];
             for (let selector of compSelectors) {
                 const el = topCard.querySelector(selector);
                 if (el && el.innerText && el.innerText.trim().toLowerCase() !== "linkedin") {
@@ -39,14 +43,32 @@ function scrapeJobDetails() {
                 }
             }
 
-            // 2. Get Job Title (XPath - The "Impossible to Break" Method)
-            // This searches for an H2 or H1 that contains the job title text
-            const titleXPath = "//h1 | //h2[contains(@class, 'title')] | //div[contains(@class, 'title')]";
-            const result = document.evaluate(titleXPath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+            // 2. Get Job Title (Expanded search for LinkedIn split-pane)
+            const roleSelectors = [
+                '.job-details-jobs-unified-top-card__job-title h1',
+                '.job-details-jobs-unified-top-card__job-title',
+                'h2.t-24.t-bold',
+                '.jobs-details-top-card__job-title',
+                'h1.t-24',
+                // Fallback: look for any main heading inside the job details card header
+                '.job-details-jobs-unified-top-card h1',
+                '.job-details-jobs-unified-top-card h2'
+            ];
 
-            if (result.singleNodeValue) {
-                role = result.singleNodeValue.innerText.trim();
+            for (let selector of roleSelectors) {
+                const el = document.querySelector(selector);
+                if (el && el.innerText) {
+                    role = el.innerText.trim();
+                    break;
+                }
             }
+        }
+        else if (url.includes('naukri.com')) {
+            const titleElement = document.querySelector('h1.styles_jd-header-title__rD36r, .jd-header-title, h1');
+            if (titleElement) role = titleElement.innerText.trim();
+
+            const companyElement = document.querySelector('.jd-header-comp-name a, .styles_jd-header-comp-name__MawbY, .jd-header-company-name, a[href*="company"]');
+            if (companyElement) company = companyElement.innerText.trim();
         }
     } catch (err) {
         console.error("Scraping error:", err);
