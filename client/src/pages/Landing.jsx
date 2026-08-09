@@ -16,7 +16,7 @@ function Landing() {
         <div style={{ maxWidth: "1200px", margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <div style={{ width: "40px", height: "40px", borderRadius: "12px", background: "linear-gradient(135deg,#10b981,#3b82f6)", color: "white", display: "flex", justifyContent: "center", alignItems: "center", fontWeight: "bold" }}>
-              JT
+              CF
             </div>
             <span style={{ fontSize: "20px", fontWeight: "700" }}>CareerForge AI</span>
           </div>

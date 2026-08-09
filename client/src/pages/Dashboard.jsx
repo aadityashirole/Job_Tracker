@@ -184,7 +184,7 @@ function Dashboard() {
               fontWeight: "800"
             }}
           >
-            JT
+            CF
           </div>
           <div>
             <h2 style={{ fontSize: "18px", margin: 0 }}>CareerForge AI</h2>

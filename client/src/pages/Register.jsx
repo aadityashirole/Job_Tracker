@@ -95,7 +95,7 @@ function Register() {
               fontSize: "20px"
             }}
           >
-            JT
+            CF
           </div>
 
           <h1 style={{ color: "white", fontSize: "30px", fontWeight: "700", marginBottom: "8px" }}>

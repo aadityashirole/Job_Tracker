@@ -42,7 +42,7 @@ function CoverLetterGenerator() {
             <nav style={{ padding: "20px 40px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.06)", position: "sticky", top: 0, zIndex: 100, backdropFilter: "blur(20px)", background: "rgba(10,15,28,0.75)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                     <div style={{ width: "40px", height: "40px", borderRadius: "12px", background: "#00ED64", color: "#071018", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "800" }}>
-                        JT
+                        CF
                     </div>
                     <div>
                         <div style={{ fontWeight: "700", fontSize: "18px" }}>CareerForge AI</div>

@@ -87,7 +87,7 @@ function AddJob() {
               fontWeight: "700"
             }}
           >
-            JT
+            CF
           </div>
 
           <span

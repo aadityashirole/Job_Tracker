@@ -123,7 +123,7 @@ function ResumeScorer() {
               fontWeight: "700"
             }}
           >
-            JT
+            CF
           </div>
           <span style={{ fontSize: "20px", fontWeight: "700" }}>CareerForge AI</span>
         </div>
