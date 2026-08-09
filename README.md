@@ -95,8 +95,8 @@ Job_Tracker/
 
 ### 1. Clone the repo
 ```bash
-git clone https://github.com/aadityashirole/Job_Tracker.git
-cd Job_Tracker
+git clone https://github.com/aadityashirole/careerforge-ai.git
+cd careerforge-ai
 ```
 
 ### 2. Backend setup
