@@ -1,14 +1,9 @@
 import { useState } from "react"
 import { tailorResumeForJob } from "../api"
 
-proptypes: {
-  job: Object,
-  onClose: Function
-}
-
 function JobDetailModal({ job, onClose }) {
   const [skills, setSkills] = useState("")
-  const [jobDesc, setJobDesc] = useState(job.notes || "") // Using notes field as JD storage fallback
+  const [jobDesc, setJobDesc] = useState(job.notes || "") 
   const [tailoredResult, setTailoredResult] = useState("")
   const [loading, setLoading] = useState(false)
 
