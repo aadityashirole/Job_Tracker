@@ -241,7 +241,7 @@ router.post("/generate-cover-letter", async (req, res) => {
     }
 });
 
-// One-Click Resume Tailor Endpoint (Updated with correct fetch syntax)
+// One-Click Resume Tailor Endpoint
 router.post('/tailor-resume', async (req, res) => {
     try {
         const { currentSkills, jobDescription, roleTitle, companyName } = req.body;
@@ -282,6 +282,46 @@ router.post('/tailor-resume', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Failed to tailor resume", details: err.message });
+    }
+});
+
+// Interactive AI Mock Interview Coach Feedback Endpoint
+router.post('/interview-feedback', async (req, res) => {
+    try {
+        const { question, userAnswer, role } = req.body;
+
+        const prompt = `You are an expert technical interviewer at a top tech company conducting a mock interview for a "${role}" position.
+        
+        Interview Question: "${question}"
+        Candidate's Answer: "${userAnswer}"
+
+        Task: Evaluate the candidate's answer constructively. Give them a quick rating (Strong, Average, or Needs Improvement), highlight what they did well, and provide 1-2 specific ways they can improve their answer for a real interview. Keep it concise, encouraging, and professional.
+
+        Format your response cleanly with clear headings or bullet points.`;
+
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "llama-3.3-70b-versatile",
+                messages: [{ role: "user", content: prompt }],
+                temperature: 0.4
+            })
+        });
+
+        const data = await response.json();
+
+        if (!data.choices || !data.choices[0]) {
+            throw new Error("Invalid response from Groq API");
+        }
+
+        res.json({ feedback: data.choices[0].message.content });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to generate interview feedback", details: err.message });
     }
 });
 
