@@ -239,5 +239,34 @@ router.post("/generate-cover-letter", async (req, res) => {
         res.status(500).json({ message: "AI request failed", error: err.message });
     }
 });
+// One-Click Resume Tailor Endpoint
+app.post('/api/ai/tailor-resume', async (req, res) => {
+    try {
+        const { currentSkills, jobDescription, roleTitle, companyName } = req.body;
+
+        const prompt = `You are an expert resume writer and ATS optimization specialist. 
+        The user is applying for the role of "${roleTitle}" at "${companyName}".
+        
+        Here is the Job Description:
+        ${jobDescription}
+
+        Here are the user's current skills and experience:
+        ${currentSkills}
+
+        Task: Rewrite 3 powerful, achievement-oriented resume bullet points tailored specifically for this job description, highlighting relevant keywords and impact. Keep it professional and concise.
+        
+        Format your response cleanly with bullet points.`;
+
+        const completion = await groq.chat.completions.create({
+            model: "llama-3.3-70b-versatile",
+            messages: [{ role: "user", content: prompt }],
+        });
+
+        res.json({ tailoredBullets: completion.choices[0].message.content });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to tailor resume" });
+    }
+});
 
 module.exports = router

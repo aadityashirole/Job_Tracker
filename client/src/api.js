@@ -93,6 +93,7 @@ export async function getJobById(token, jobId) {
 
     return handleResponse(res)
 }
+
 export async function getInterviewQuestions(role, jd) {
     const res = await fetch(`${API_URL}/ai/interview-prep`, {
         method: "POST",
@@ -101,12 +102,10 @@ export async function getInterviewQuestions(role, jd) {
     });
     return handleResponse(res);
 }
-// 👇 PASTE THIS AT THE BOTTOM OF api.js 👇
 
 export const generateCoverLetter = async (skills, jd, roleTitle) => {
     try {
-        // Notice this matches your live Render URL!
-        const response = await fetch("https://job-tracker-qyzl.onrender.com/api/ai/generate-cover-letter", {
+        const response = await fetch(`${API_URL}/ai/generate-cover-letter`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -119,10 +118,24 @@ export const generateCoverLetter = async (skills, jd, roleTitle) => {
         }
 
         const data = await response.json();
-        return data; // This returns the letter back to your React component
+        return data;
 
     } catch (error) {
         console.error("Error generating cover letter:", error);
         return { message: error.message };
     }
 };
+
+// 👇 STEP 2: Added at the bottom using your proper API_URL format 👇
+
+export async function tailorResumeForJob(token, currentSkills, jobDescription, roleTitle, companyName) {
+    const res = await fetch(`${API_URL}/ai/tailor-resume`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ currentSkills, jobDescription, roleTitle, companyName })
+    })
+    return handleResponse(res)
+}

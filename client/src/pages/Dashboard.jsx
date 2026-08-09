@@ -10,6 +10,7 @@ import {
   ResponsiveContainer
 } from "recharts"
 import { CSVLink } from "react-csv"
+import JobDetailModal from "../components/JobDetailModal"
 
 function Dashboard() {
   const [user, setUser] = useState(null)
@@ -17,9 +18,9 @@ function Dashboard() {
   const [view, setView] = useState("list")
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
-  const [selectedJob, setSelectedJob] = useState(null)
+  const [selectedJob, setSelectedJob] = useState(null) // Used for Status Timeline Modal
+  const [tailorJob, setTailorJob] = useState(null)     // Used for AI Resume Tailor Modal
   const [loading, setLoading] = useState(true)
-
 
   const navigate = useNavigate()
 
@@ -34,9 +35,7 @@ function Dashboard() {
   async function fetchJobs(token) {
     try {
       setLoading(true)
-
       const data = await getJobs(token)
-
       if (Array.isArray(data)) {
         setJobs(data)
       }
@@ -53,9 +52,7 @@ function Dashboard() {
   async function handleStatusUpdate(jobId, newStatus) {
     try {
       const token = localStorage.getItem("token")
-
       await updateJobStatus(token, jobId, newStatus)
-
       setJobs(
         jobs.map(job =>
           job._id === jobId
@@ -73,9 +70,7 @@ function Dashboard() {
   async function handleDeleteJob(jobId) {
     try {
       const token = localStorage.getItem("token")
-
       await deleteJob(token, jobId)
-
       setJobs(
         jobs.filter(job => job._id !== jobId)
       )
@@ -85,6 +80,7 @@ function Dashboard() {
       alert("Failed to delete job")
     }
   }
+
   function handleLogout() {
     localStorage.removeItem("token")
     localStorage.removeItem("user")
@@ -96,72 +92,28 @@ function Dashboard() {
   const shortlisted = jobs.filter(j => j.status === "shortlisted").length
   const offers = jobs.filter(j => j.status === "offer").length
   const rejected = jobs.filter(j => j.status === "rejected").length
-  const chartData = [
-    {
-      name: "Applied",
-      value: jobs.filter(j => j.status === "applied").length
-    },
-    {
-      name: "Shortlisted",
-      value: shortlisted
-    },
-    {
-      name: "Interview",
-      value: interviews
-    },
-    {
-      name: "Offer",
-      value: offers
-    },
-    {
-      name: "Rejected",
-      value: rejected
-    }
-  ]
-  const COLORS = [
-    "#94A3B8",
-    "#F59E0B",
-    "#60A5FA",
-    "#00ED64",
-    "#EF4444"
-  ]
-  const recentJobs = [...jobs]
-    .sort(
-      (a, b) =>
-        new Date(b.createdAt) -
-        new Date(a.createdAt)
-    )
-    .slice(0, 5)
-  const interviewRate =
-    totalJobs > 0
-      ? ((interviews / totalJobs) * 100).toFixed(1)
-      : 0
 
-  const successRate =
-    totalJobs > 0
-      ? ((offers / totalJobs) * 100).toFixed(1)
-      : 0
+  const recentJobs = [...jobs]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 5)
+
+  const interviewRate = totalJobs > 0 ? ((interviews / totalJobs) * 100).toFixed(1) : 0
+  const successRate = totalJobs > 0 ? ((offers / totalJobs) * 100).toFixed(1) : 0
+
   const csvData = jobs.map(job => ({
     Company: job.company_name,
     Role: job.role_title,
     Status: job.status,
-    AppliedDate: job.applied_date
-      ? job.applied_date.slice(0, 10)
-      : "",
+    AppliedDate: job.applied_date ? job.applied_date.slice(0, 10) : "",
     Notes: job.notes || ""
   }))
+
   const filteredJobs = jobs.filter(job => {
     const matchesSearch =
-      job.company_name
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      job.role_title
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
+      job.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.role_title.toLowerCase().includes(searchTerm.toLowerCase())
 
-    const matchesStatus =
-      statusFilter === "all" ||
-      job.status === statusFilter
+    const matchesStatus = statusFilter === "all" || job.status === statusFilter
 
     return matchesSearch && matchesStatus
   })
@@ -193,18 +145,15 @@ function Dashboard() {
     )
   }
 
-
   return (
     <div
       style={{
         minHeight: "100vh",
-        background:
-          "radial-gradient(circle at top, #15304a 0%, #0A0F1C 45%, #0A0F1C 100%)",
+        background: "radial-gradient(circle at top, #15304a 0%, #0A0F1C 45%, #0A0F1C 100%)",
         color: "#F8FAFC"
       }}
     >
       {/* NAVBAR */}
-
       <nav
         style={{
           position: "sticky",
@@ -221,13 +170,7 @@ function Dashboard() {
           gap: "12px"
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "12px"
-          }}
-        >
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <div
             style={{
               width: "40px",
@@ -243,45 +186,14 @@ function Dashboard() {
           >
             JT
           </div>
-
           <div>
-            <h2
-              style={{
-                fontSize: "18px",
-                margin: 0
-              }}
-            >
-              Job Tracker
-            </h2>
-
-            <p
-              style={{
-                margin: 0,
-                fontSize: "12px",
-                color: "#94A3B8"
-              }}
-            >
-              AI Career Workspace
-            </p>
+            <h2 style={{ fontSize: "18px", margin: 0 }}>Job Tracker</h2>
+            <p style={{ margin: 0, fontSize: "12px", color: "#94A3B8" }}>AI Career Workspace</p>
           </div>
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "16px"
-          }}
-        >
-          <span
-            style={{
-              color: "#94A3B8",
-              fontSize: "14px"
-            }}
-          >
-            {user?.email}
-          </span>
-
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <span style={{ color: "#94A3B8", fontSize: "14px" }}>{user?.email}</span>
           <button
             onClick={handleLogout}
             style={{
@@ -299,18 +211,9 @@ function Dashboard() {
         </div>
       </nav>
 
-      <div
-        style={{
-          padding: "20px"
-        }}
-      >
+      <div style={{ padding: "20px" }}>
         {/* HERO */}
-
-        <div
-          style={{
-            marginBottom: "40px"
-          }}
-        >
+        <div style={{ marginBottom: "40px" }}>
           <div
             style={{
               display: "inline-flex",
@@ -349,22 +252,13 @@ function Dashboard() {
               lineHeight: "1.7"
             }}
           >
-            Track applications, prepare for interviews,
-            analyze job descriptions and improve your
+            Track applications, prepare for interviews, analyze job descriptions and improve your
             resume from one professional workspace.
           </p>
         </div>
 
         {/* ACTION BUTTONS */}
-
-        <div
-          style={{
-            display: "flex",
-            gap: "12px",
-            flexWrap: "wrap",
-            marginBottom: "34px"
-          }}
-        >
+        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginBottom: "34px" }}>
           <button
             onClick={() => navigate("/add-job")}
             style={{
@@ -425,7 +319,6 @@ function Dashboard() {
             🎯 Interview Prep
           </button>
 
-          {/* NEW AI COVER LETTER BUTTON */}
           <button
             onClick={() => navigate("/cover-letter")}
             style={{
@@ -457,126 +350,52 @@ function Dashboard() {
           </CSVLink>
         </div>
 
-
         {/* STATS */}
-
         <div
           style={{
             display: "grid",
-            gridTemplateColumns:
-              "repeat(auto-fit,minmax(220px,1fr))",
+            gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
             gap: "18px",
             marginBottom: "36px"
           }}
         >
           <div style={statCard}>
-            <p style={{ color: "#94A3B8", marginBottom: "10px" }}>
-              Total Applications
-            </p>
-
-            <h2
-              style={{
-                fontSize: "40px",
-                margin: 0
-              }}
-            >
-              {totalJobs}
-            </h2>
+            <p style={{ color: "#94A3B8", marginBottom: "10px" }}>Total Applications</p>
+            <h2 style={{ fontSize: "40px", margin: 0 }}>{totalJobs}</h2>
           </div>
 
           <div style={statCard}>
-            <p style={{ color: "#94A3B8", marginBottom: "10px" }}>
-              Interviews
-            </p>
-
-            <h2
-              style={{
-                color: "#60A5FA",
-                fontSize: "40px",
-                margin: 0
-              }}
-            >
-              {interviews}
-            </h2>
-          </div>
-          <div style={statCard}>
-            <p style={{ color: "#94A3B8", marginBottom: "10px" }}>
-              Shortlisted
-            </p>
-
-            <h2
-              style={{
-                color: "#F59E0B",
-                fontSize: "40px",
-                margin: 0
-              }}
-            >
-              {shortlisted}
-            </h2>
+            <p style={{ color: "#94A3B8", marginBottom: "10px" }}>Interviews</p>
+            <h2 style={{ color: "#60A5FA", fontSize: "40px", margin: 0 }}>{interviews}</h2>
           </div>
 
           <div style={statCard}>
-            <p style={{ color: "#94A3B8", marginBottom: "10px" }}>
-              Offers
-            </p>
-
-            <h2
-              style={{
-                color: "#00ED64",
-                fontSize: "40px",
-                margin: 0
-              }}
-            >
-              {offers}
-            </h2>
+            <p style={{ color: "#94A3B8", marginBottom: "10px" }}>Shortlisted</p>
+            <h2 style={{ color: "#F59E0B", fontSize: "40px", margin: 0 }}>{shortlisted}</h2>
           </div>
 
           <div style={statCard}>
-            <p style={{ color: "#94A3B8", marginBottom: "10px" }}>
-              Rejected
-            </p>
-
-            <h2
-              style={{
-                color: "#EF4444",
-                fontSize: "40px",
-                margin: 0
-              }}
-            >
-              {rejected}
-            </h2>
-          </div>
-          <div style={statCard}>
-            <p style={{ color: "#94A3B8" }}>
-              Interview Rate
-            </p>
-
-            <h2
-              style={{
-                color: "#60A5FA",
-                margin: 0
-              }}
-            >
-              {interviewRate}%
-            </h2>
+            <p style={{ color: "#94A3B8", marginBottom: "10px" }}>Offers</p>
+            <h2 style={{ color: "#00ED64", fontSize: "40px", margin: 0 }}>{offers}</h2>
           </div>
 
           <div style={statCard}>
-            <p style={{ color: "#94A3B8" }}>
-              Success Rate
-            </p>
+            <p style={{ color: "#94A3B8", marginBottom: "10px" }}>Rejected</p>
+            <h2 style={{ color: "#EF4444", fontSize: "40px", margin: 0 }}>{rejected}</h2>
+          </div>
 
-            <h2
-              style={{
-                color: "#00ED64",
-                margin: 0
-              }}
-            >
-              {successRate}%
-            </h2>
+          <div style={statCard}>
+            <p style={{ color: "#94A3B8" }}>Interview Rate</p>
+            <h2 style={{ color: "#60A5FA", margin: 0 }}>{interviewRate}%</h2>
+          </div>
+
+          <div style={statCard}>
+            <p style={{ color: "#94A3B8" }}>Success Rate</p>
+            <h2 style={{ color: "#00ED64", margin: 0 }}>{successRate}%</h2>
           </div>
         </div>
 
+        {/* RECENT ACTIVITY */}
         <div
           style={{
             background: "rgba(17,24,39,0.75)",
@@ -587,36 +406,24 @@ function Dashboard() {
             marginBottom: "30px"
           }}
         >
-          <h2 style={{ marginBottom: "20px" }}>
-            Recent Activity
-          </h2>
-
+          <h2 style={{ marginBottom: "20px" }}>Recent Activity</h2>
           {recentJobs.map(job => (
             <div
               key={job._id}
               style={{
                 padding: "12px 0",
-                borderBottom:
-                  "1px solid rgba(255,255,255,0.05)"
+                borderBottom: "1px solid rgba(255,255,255,0.05)"
               }}
             >
-              <strong>{job.company_name}</strong>
-              {" - "}
-              {job.role_title}
-
-              <div
-                style={{
-                  color: "#94A3B8",
-                  fontSize: "13px",
-                  marginTop: "4px"
-                }}
-              >
+              <strong>{job.company_name}</strong> - {job.role_title}
+              <div style={{ color: "#94A3B8", fontSize: "13px", marginTop: "4px" }}>
                 {new Date(job.createdAt).toLocaleDateString()}
               </div>
             </div>
           ))}
         </div>
-        {/* PART 2 STARTS FROM HERE */}
+
+        {/* APPLICATIONS SECTION */}
         <div
           style={{
             background: "rgba(17,24,39,0.75)",
@@ -631,21 +438,25 @@ function Dashboard() {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              marginBottom: "24px"
+              marginBottom: "24px",
+              flexWrap: "wrap",
+              gap: "15px"
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                gap: "12px",
-                flexWrap: "wrap"
-              }}
-            >
+            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
               <input
                 type="text"
                 placeholder="Search company or role..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  background: "#111827",
+                  color: "#F8FAFC",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  padding: "12px",
+                  borderRadius: "10px",
+                  outline: "none"
+                }}
               />
 
               <select
@@ -660,64 +471,28 @@ function Dashboard() {
                   cursor: "pointer"
                 }}
               >
-                <option value="all" style={{ color: "black" }}>
-                  All Status
-                </option>
-                <option value="applied" style={{ color: "black" }}>
-                  Applied
-                </option>
-                <option value="shortlisted" style={{ color: "black" }}>
-                  Shortlisted
-                </option>
-                <option value="interview" style={{ color: "black" }}>
-                  Interview
-                </option>
-                <option value="offer" style={{ color: "black" }}>
-                  Offer
-                </option>
-                <option value="rejected" style={{ color: "black" }}>
-                  Rejected
-                </option>
+                <option value="all">All Status</option>
+                <option value="applied">Applied</option>
+                <option value="shortlisted">Shortlisted</option>
+                <option value="interview">Interview</option>
+                <option value="offer">Offer</option>
+                <option value="rejected">Rejected</option>
               </select>
             </div>
-            <div>
-              <h2
-                style={{
-                  margin: 0,
-                  fontSize: "24px"
-                }}
-              >
-                Your Applications
-              </h2>
 
-              <p
-                style={{
-                  marginTop: "6px",
-                  color: "#94A3B8",
-                  fontSize: "14px"
-                }}
-              >
-                Manage and monitor every application.
+            <div>
+              <h2 style={{ margin: 0, fontSize: "24px" }}>Your Applications</h2>
+              <p style={{ marginTop: "6px", color: "#94A3B8", fontSize: "14px" }}>
+                Manage and monitor every application. Click any application to tailor your resume.
               </p>
             </div>
 
-            <div
-              style={{
-                display: "flex",
-                gap: "8px"
-              }}
-            >
+            <div style={{ display: "flex", gap: "8px" }}>
               <button
                 onClick={() => setView("list")}
                 style={{
-                  background:
-                    view === "list"
-                      ? "#00ED64"
-                      : "rgba(255,255,255,0.05)",
-                  color:
-                    view === "list"
-                      ? "#071018"
-                      : "#F8FAFC",
+                  background: view === "list" ? "#00ED64" : "rgba(255,255,255,0.05)",
+                  color: view === "list" ? "#071018" : "#F8FAFC",
                   border: "none",
                   padding: "10px 18px",
                   borderRadius: "10px",
@@ -731,14 +506,8 @@ function Dashboard() {
               <button
                 onClick={() => setView("kanban")}
                 style={{
-                  background:
-                    view === "kanban"
-                      ? "#00ED64"
-                      : "rgba(255,255,255,0.05)",
-                  color:
-                    view === "kanban"
-                      ? "#071018"
-                      : "#F8FAFC",
+                  background: view === "kanban" ? "#00ED64" : "rgba(255,255,255,0.05)",
+                  color: view === "kanban" ? "#071018" : "#F8FAFC",
                   border: "none",
                   padding: "10px 18px",
                   borderRadius: "10px",
@@ -752,27 +521,9 @@ function Dashboard() {
           </div>
 
           {filteredJobs.length === 0 ? (
-            <div
-              style={{
-                textAlign: "center",
-                padding: "80px 20px"
-              }}
-            >
-              <h3
-                style={{
-                  marginBottom: "12px"
-                }}
-              >
-                No applications yet
-              </h3>
-
-              <p
-                style={{
-                  color: "#94A3B8"
-                }}
-              >
-                Start by adding your first application.
-              </p>
+            <div style={{ textAlign: "center", padding: "80px 20px" }}>
+              <h3 style={{ marginBottom: "12px" }}>No applications yet</h3>
+              <p style={{ color: "#94A3B8" }}>Start by adding your first application.</p>
             </div>
           ) : view === "list" ? (
             filteredJobs.map(job => (
@@ -792,23 +543,8 @@ function Dashboard() {
                 }}
               >
                 <div>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "12px",
-                      marginBottom: "8px"
-                    }}
-                  >
-                    <h3
-                      style={{
-                        margin: 0,
-                        fontSize: "18px"
-                      }}
-                    >
-                      {job.company_name}
-                    </h3>
-
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }}>
+                    <h3 style={{ margin: 0, fontSize: "18px" }}>{job.company_name}</h3>
                     <span
                       style={{
                         padding: "6px 12px",
@@ -816,7 +552,6 @@ function Dashboard() {
                         fontSize: "12px",
                         fontWeight: "600",
                         textTransform: "capitalize",
-
                         backgroundColor:
                           job.status === "offer"
                             ? "rgba(0,237,100,0.12)"
@@ -825,7 +560,6 @@ function Dashboard() {
                               : job.status === "rejected"
                                 ? "rgba(239,68,68,0.12)"
                                 : "rgba(255,255,255,0.08)",
-
                         color:
                           job.status === "offer"
                             ? "#00ED64"
@@ -840,41 +574,18 @@ function Dashboard() {
                     </span>
                   </div>
 
-                  <p
-                    style={{
-                      margin: 0,
-                      color: "#94A3B8"
-                    }}
-                  >
-                    {job.role_title}
-                  </p>
+                  <p style={{ margin: 0, color: "#94A3B8" }}>{job.role_title}</p>
                   {job.notes && (
-                    <p
-                      style={{
-                        color: "#94A3B8",
-                        marginTop: "8px",
-                        fontSize: "14px"
-                      }}
-                    >
+                    <p style={{ color: "#94A3B8", marginTop: "8px", fontSize: "14px" }}>
                       📝 {job.notes}
                     </p>
                   )}
                 </div>
 
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "10px"
-                  }}
-                >
+                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
                   <select
                     value={job.status}
-                    onChange={(e) =>
-                      handleStatusUpdate(
-                        job._id,
-                        e.target.value
-                      )
-                    }
+                    onChange={(e) => handleStatusUpdate(job._id, e.target.value)}
                     style={{
                       background: "#111827",
                       border: "1px solid rgba(255,255,255,0.08)",
@@ -885,17 +596,27 @@ function Dashboard() {
                     }}
                   >
                     <option value="applied">Applied</option>
-                    <option value="shortlisted">
-                      Shortlisted
-                    </option>
-                    <option value="interview">
-                      Interview
-                    </option>
+                    <option value="shortlisted">Shortlisted</option>
+                    <option value="interview">Interview</option>
                     <option value="offer">Offer</option>
-                    <option value="rejected">
-                      Rejected
-                    </option>
+                    <option value="rejected">Rejected</option>
                   </select>
+
+                  <button
+                    onClick={() => setTailorJob(job)}
+                    style={{
+                      background: "rgba(0,237,100,0.12)",
+                      border: "1px solid rgba(0,237,100,0.25)",
+                      color: "#00ED64",
+                      padding: "10px 14px",
+                      borderRadius: "10px",
+                      cursor: "pointer",
+                      fontWeight: "600"
+                    }}
+                  >
+                    ✨ Tailor Resume
+                  </button>
+
                   <button
                     onClick={() => navigate(`/edit-job/${job._id}`)}
                     style={{
@@ -910,6 +631,7 @@ function Dashboard() {
                   >
                     Edit
                   </button>
+
                   <button
                     onClick={() => setSelectedJob(job)}
                     style={{
@@ -932,10 +654,8 @@ function Dashboard() {
                       }
                     }}
                     style={{
-                      background:
-                        "rgba(239,68,68,0.12)",
-                      border:
-                        "1px solid rgba(239,68,68,0.25)",
+                      background: "rgba(239,68,68,0.12)",
+                      border: "1px solid rgba(239,68,68,0.25)",
                       color: "#EF4444",
                       padding: "10px 14px",
                       borderRadius: "10px",
@@ -950,10 +670,7 @@ function Dashboard() {
             ))
           ) : (
             <KanbanBoard
-              jobs={filteredJobs.map(j => ({
-                ...j,
-                id: j._id
-              }))}
+              jobs={filteredJobs.map(j => ({ ...j, id: j._id }))}
               onStatusUpdate={handleStatusUpdate}
               onDeleteJob={handleDeleteJob}
               onShowTimeline={setSelectedJob}
@@ -961,6 +678,8 @@ function Dashboard() {
           )}
         </div>
       </div>
+
+      {/* STATUS TIMELINE MODAL */}
       {selectedJob && (
         <div
           style={{
@@ -980,32 +699,23 @@ function Dashboard() {
               maxWidth: "90%",
               padding: "24px",
               borderRadius: "20px",
-              border: "1px solid rgba(255,255,255,0.08)"
+              border: "1px solid rgba(255,255,255,0.08)",
+              color: "white"
             }}
           >
             <h2>{selectedJob.company_name}</h2>
-
-            <p style={{ color: "#94A3B8" }}>
-              Status Timeline
-            </p>
+            <p style={{ color: "#94A3B8" }}>Status Timeline</p>
 
             {selectedJob.statusHistory?.map((item, index) => (
               <div
                 key={index}
                 style={{
                   padding: "12px 0",
-                  borderBottom:
-                    "1px solid rgba(255,255,255,0.05)"
+                  borderBottom: "1px solid rgba(255,255,255,0.05)"
                 }}
               >
                 <strong>{item.status}</strong>
-
-                <div
-                  style={{
-                    color: "#94A3B8",
-                    fontSize: "14px"
-                  }}
-                >
+                <div style={{ color: "#94A3B8", fontSize: "14px" }}>
                   {new Date(item.date).toLocaleDateString()}
                 </div>
               </div>
@@ -1019,13 +729,24 @@ function Dashboard() {
                 padding: "12px",
                 border: "none",
                 borderRadius: "10px",
-                cursor: "pointer"
+                cursor: "pointer",
+                background: "#334155",
+                color: "white",
+                fontWeight: "600"
               }}
             >
               Close
             </button>
           </div>
         </div>
+      )}
+
+      {/* AI RESUME TAILOR MODAL */}
+      {tailorJob && (
+        <JobDetailModal
+          job={tailorJob}
+          onClose={() => setTailorJob(null)}
+        />
       )}
     </div>
   )
